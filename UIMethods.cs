@@ -1,6 +1,6 @@
 ﻿namespace DataGifting
 {
-    internal class UIMethods
+    public class UIMethods
     {
     }
 }

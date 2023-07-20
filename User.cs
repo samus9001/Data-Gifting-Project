@@ -2,47 +2,44 @@
 {
     public class User
     {
-        public string firstName 
-        { 
-            get;
-        }
-        public string lastName
+        private string _firstName;
+
+        public string FirstName
         {
-            get;
-        }
-        public string emailAddress
-        {
-            get;
-        }
-        public string streetName
-        {
-            get;
-        }
-        public string houseNumber
-        {
-            get;
-        }
-        public string postCode
-        {
-            get;
-        }
-        public string city
-        {
-            get;
-        }
-        public int phoneNumber
-        {
-            get;
-        }
-        public List<int> phoneNumberList
-        {
-            get;
+            get { return _firstName; }
+            set { _firstName = value; }
         }
 
-        public User()
+        private string _lastName;
+
+        public string LastName
         {
-            phoneNumberList = new List<int>();
+            get { return _lastName; }
+            set { _lastName = value; }
+        }
+
+        private string _emailAddress;
+
+        public string EmailAddress
+        {
+            get { return _emailAddress; }
+            set { _emailAddress = value; }
+        }
+
+        private Address _address;
+
+        public Address Address
+        {
+            get { return _address; }
+            set { _address = value; }
+        }
+
+        private List<Plan> _plan;
+
+        public List<Plan> Plan
+        {
+            get { return _plan; }
+            set { _plan = value; }
         }
     }
-
 }

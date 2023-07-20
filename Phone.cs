@@ -2,9 +2,21 @@
 {
     public class Phone
     {
-        public string model 
+
+		private string _manufacturer;
+
+		public string Manufacturer
         {
-            get;
-        }
-    }
+			get { return _manufacturer; }
+			set { _manufacturer = value; }
+		}
+
+		private string _model;
+
+		public string Model
+		{
+			get { return _model; }
+			set { _model = value; }
+		}
+	}
 }

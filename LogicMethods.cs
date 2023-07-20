@@ -1,6 +1,6 @@
 ﻿namespace DataGifting
 {
-    internal class LogicMethods
+    public class LogicMethods
     {
     }
 }

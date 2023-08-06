@@ -8,6 +8,7 @@ namespace DataGifting
 {
     public class Plan
     {
+        //TODO: plan number
 
         private string _planName;
 
@@ -35,16 +36,14 @@ namespace DataGifting
             }
             set
             {
-
-                if (value >= 0)
-                {
-                    _daysLeftAllowanceRefresh = value;
-                }
+                _daysLeftAllowanceRefresh = value;
             }
         }
 
         private int _dataAmountRemaining;
-
+        /// <summary>
+        /// MegaBytes
+        /// </summary>
         public int DataAmountRemaining
         {
             get
@@ -61,7 +60,9 @@ namespace DataGifting
         }
 
         private int _dataAmountPercentRemaining;
-
+        /// <summary>
+        /// MegaBytes
+        /// </summary>
         public int DataAmountPercentRemaining
         {
             get
@@ -75,6 +76,14 @@ namespace DataGifting
                     _dataAmountPercentRemaining = value;
                 }
             }
+        }
+
+        private string _giftingEligibility;
+
+        public string GiftingEligibility
+        {
+            get { return _giftingEligibility; }
+            set { _giftingEligibility = value; }
         }
     }
 }

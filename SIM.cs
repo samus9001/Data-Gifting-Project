@@ -2,21 +2,23 @@
 {
     public class SIM
     {
-        private int _serialNumber;
+        private string _serialNumber;
 
-        public int SerialNumber
+
+        //TODO: implement constructor with sim serial as parameter
+        public string SerialNumber
         {
             get
             {
                 return _serialNumber;
             }
-            set
-            {
-                if (value == 12)
-                {
-                    _serialNumber = value;
-                }
-            }
+            //set
+            //{
+            //    if (value.Length == 12)
+            //    {
+            //        _serialNumber = value;
+            //    }
+            //}
         }
 
         private string _phoneNumber;

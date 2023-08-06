@@ -9,17 +9,13 @@ namespace DataGifting
     public class DataGiftRequest
     {
 
-        private string _giftingEligibility;
+        //TODO: source and destination plan properties
 
-        public string GiftingEligibility
-        {
-            get { return _giftingEligibility; }
-            set { _giftingEligibility = value; }
-        }
+ 
 
-        private int _giftDate;
+        private DateTime _giftDate;
 
-        public int GiftDate
+        public DateTime GiftDate
         {
             get { return _giftDate; }
             set { _giftDate = value; }

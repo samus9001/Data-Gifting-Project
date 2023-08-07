@@ -8,21 +8,18 @@ namespace DataGifting
     {
         //const string MB_UNITS = "MB";
         //const string GB_UNITS = "GB";
-
-        //static void Main(string[] args)
-        //{
-        //    //SIM sim1 = new SIM();
-        //    //sim1.PhoneNumber = "07725917672";
-        //    //sim1.SerialNumber = 8944303613082964096;
-        //}
-
+        //SIM sim1 = new SIM();
+        //sim1.PhoneNumber = "07725917672";
+        //sim1.SerialNumber = "361308296409";
 
             //TODO: look into httpclient class
             //TODO: try to recreate login sequence (enable cookies :) )
         public static HttpClient client = new HttpClient();
 
-        static async Task Main()
+        static async Task Main(string[] args)
         {
+            var sim = new SIM("361308296409");
+
             var uri = "http://id.ee.co.uk/";
             var signInName = "sameer99%40outlook.com";
             var password = "D%40tagifting2113";
@@ -101,7 +98,7 @@ namespace DataGifting
             // Check if the POST request was successful
             if (response.IsSuccessStatusCode)
             {
-                Console.WriteLine("POST request was successful!\n");
+                Console.WriteLine("POST request was successful\n");
             }
             else
             {

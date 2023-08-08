@@ -8,10 +8,21 @@ namespace DataGifting
 {
     public class DataGiftRequest
     {
+        private int _sourcePhoneNumber;
 
-        //TODO: source and destination plan properties
+        public int SourcePhoneNumber
+        {
+            get { return _sourcePhoneNumber; }
+            set { _sourcePhoneNumber = value; }
+        }
 
- 
+        private int _destinationPhoneNumber;
+
+        public int DestinationPhoneNumber
+        {
+            get { return _destinationPhoneNumber; }
+            set { _destinationPhoneNumber = value; }
+        }
 
         private DateTime _giftDate;
 

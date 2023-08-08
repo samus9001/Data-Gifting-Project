@@ -12,17 +12,15 @@ namespace DataGifting
         //sim1.PhoneNumber = "07725917672";
         //sim1.SerialNumber = "361308296409";
 
-            //TODO: look into httpclient class
-            //TODO: try to recreate login sequence (enable cookies :) )
         public static HttpClient client = new HttpClient();
 
         static async Task Main(string[] args)
         {
-            var sim = new SIM("361308296409");
-
             var uri = "http://id.ee.co.uk/";
             var signInName = "sameer99%40outlook.com";
             var password = "D%40tagifting2113";
+            var sim = new SIM("361308296409");
+            //var phone = new SIM("07725917672");
 
             // Create an instance of HttpClientHandler with cookie support
             var handler = new HttpClientHandler
@@ -38,7 +36,7 @@ namespace DataGifting
             //using (var handler = new HttpClientHandler { UseCookies = false })
             //using (var client = new HttpClient(handler) { BaseAddress = baseAddress })
             //{
-            //    var message = new HttpRequestMessage(HttpMethod.Get, "/test");
+            //    var message = new HttpRequestMessage(HttpMethod.Get, "");
             //    message.Headers.Add("Cookie", "cookie1=value1; cookie2=value2");
             //    var result = await client.SendAsync(message);
             //    result.EnsureSuccessStatusCode();
@@ -92,8 +90,7 @@ namespace DataGifting
                 new KeyValuePair<string, string>("password", password)
             });
 
-            var HttpClient = new HttpClient();
-            var response = await HttpClient.PostAsync(uri.ToString(), formContent);
+            var response = await client.PostAsync(uri, formContent);
 
             // Check if the POST request was successful
             if (response.IsSuccessStatusCode)
@@ -107,6 +104,23 @@ namespace DataGifting
 
             var stringContent = await response.Content.ReadAsStringAsync();
             Console.WriteLine(stringContent);
+
+            //    uri = "http://id.ee.co.uk/plans-subscriptions/mobile/data-gifting?fa=giftingAllowances";
+            //    response = await client.GetAsync(uri);
+
+            //    // Check if the POST request was successful
+            //    if (response.IsSuccessStatusCode)
+            //    {
+            //        Console.WriteLine("POST request was successful\n");
+            //    }
+            //    else
+            //    {
+            //        Console.WriteLine($"POST request failed with status code: {response.StatusCode}\n");
+            //    }
+
+            //    stringContent = await response.Content.ReadAsStringAsync();
+            //    Console.WriteLine(stringContent);
+            //}
         }
     }
 }

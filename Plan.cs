@@ -8,7 +8,13 @@ namespace DataGifting
 {
     public class Plan
     {
-        //TODO: plan number
+        private int _planNumber;
+
+        public int PlanNumber
+        {
+            get { return _planNumber; }
+            set { _planNumber = value; }
+        }
 
         private string _planName;
 

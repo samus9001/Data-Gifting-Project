@@ -16,33 +16,89 @@ namespace DataGifting
 
         static async Task Main(string[] args)
         {
-            var uri = "http://id.ee.co.uk/";
+            var baseUri = "https://auth.ee.co.uk/e2ea8fbf-98c0-4cf1-a2df-ee9d55ef69c3/";
+            var p = "B2C_1A_RPBT_SignUpSignIn";
+            var uri = $"{baseUri}?p={p}";
+            //var tx = "StateProperties=eyJUSUQiOiJjZDFmZjAwZS0wZDNjLTRiNmItYWY3Yy01YmM4ZWQ5ZGQxZGMifQ";
             var signInName = "sameer99%40outlook.com";
             var password = "D%40tagifting2113";
+            var request_type = "RESPONSE";
             var sim = new SIM("361308296409");
             //var phone = new SIM("07725917672");
 
-            // Create an instance of HttpClientHandler with cookie support
+            // create an instance of HttpClientHandler with cookie support
             var handler = new HttpClientHandler
             {
                 UseCookies = true
             };
 
-            // Pass the HttpClientHandler to HttpClient
+            // pass the HttpClientHandler to HttpClient
             client = new HttpClient(handler);
 
-            //enable manual cookies for specific site (note sure if needed?)
-            //var baseAddress = new Uri("http://id.ee.co.uk");
-            //using (var handler = new HttpClientHandler { UseCookies = false })
-            //using (var client = new HttpClient(handler) { BaseAddress = baseAddress })
-            //{
-            //    var message = new HttpRequestMessage(HttpMethod.Get, "");
-            //    message.Headers.Add("Cookie", "cookie1=value1; cookie2=value2");
-            //    var result = await client.SendAsync(message);
-            //    result.EnsureSuccessStatusCode();
-            //}
+            try
+            {
+                // send a GET request to retrieve the initial page
+                HttpResponseMessage response = await client.GetAsync(uri);
 
-            //retrieves the entire HTTP response
+                if (response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("GET request was successful\n");
+
+                    // simulate form data for the POST request
+                    var formContent = new FormUrlEncodedContent(new[]
+                    {
+                    new KeyValuePair<string, string>("request_type", request_type),
+                    new KeyValuePair<string, string>("signInName", signInName),
+                    new KeyValuePair<string, string>("password", password)
+                });
+
+                    // send a POST request
+                    var postResponse = await client.PostAsync(uri, formContent);
+
+                    // check if the POST request was successful
+                    if (postResponse.IsSuccessStatusCode)
+                    {
+                        Console.WriteLine("POST request was successful\n");
+
+                        // handle the response content
+                        var stringContent = await postResponse.Content.ReadAsStringAsync();
+
+                        // check if the response URL matches the successful login redirect URL
+                        if (postResponse.RequestMessage.RequestUri.AbsoluteUri == "https://ee.co.uk/exp/home")
+                        {
+                            Console.WriteLine("Login successful!");
+                            //Console.WriteLine(stringContent);
+                        }
+
+                        else
+                        {
+                            Console.WriteLine("Login was not successful. Check credentials or process.");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine($"POST request failed with status code: {postResponse.StatusCode}\n");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"GET request failed with status code: {response.StatusCode}");
+                    //string responseContent = await response.Content.ReadAsStringAsync();
+                    //Console.WriteLine($"Response Content:\n{responseContent}");
+                }
+            }
+            catch (HttpRequestException e)
+            {
+                Console.WriteLine("\nHttpRequestException Caught!");
+                Console.WriteLine("Message :{0} ", e.Message);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("\nAn unexpected exception occurred!");
+                Console.WriteLine("Message :{0} ", ex.Message);
+            }
+
+            // retrieves the entire HTTP response
             //try
             //{
             //    var uri = "http://id.ee.co.uk/";
@@ -71,7 +127,7 @@ namespace DataGifting
 
             //Console.WriteLine("\n");
 
-            //retrieves the response body as a string
+            // retrieves the response body as a string
             //try
             //{
             //    string responseBody = await client.GetStringAsync("http://id.ee.co.uk/");
@@ -82,44 +138,6 @@ namespace DataGifting
             //{
             //    Console.WriteLine("\nException Caught!");
             //    Console.WriteLine("Message :{0} ", e.Message);
-            //}
-
-            var formContent = new FormUrlEncodedContent(new[]
-            {
-                new KeyValuePair<string, string>("signInName", signInName),
-                new KeyValuePair<string, string>("password", password)
-            });
-
-            var response = await client.PostAsync(uri, formContent);
-
-            // Check if the POST request was successful
-            if (response.IsSuccessStatusCode)
-            {
-                Console.WriteLine("POST request was successful\n");
-            }
-            else
-            {
-                Console.WriteLine($"POST request failed with status code: {response.StatusCode}\n");
-            }
-
-            var stringContent = await response.Content.ReadAsStringAsync();
-            Console.WriteLine(stringContent);
-
-            //    uri = "http://id.ee.co.uk/plans-subscriptions/mobile/data-gifting?fa=giftingAllowances";
-            //    response = await client.GetAsync(uri);
-
-            //    // Check if the POST request was successful
-            //    if (response.IsSuccessStatusCode)
-            //    {
-            //        Console.WriteLine("POST request was successful\n");
-            //    }
-            //    else
-            //    {
-            //        Console.WriteLine($"POST request failed with status code: {response.StatusCode}\n");
-            //    }
-
-            //    stringContent = await response.Content.ReadAsStringAsync();
-            //    Console.WriteLine(stringContent);
             //}
         }
     }

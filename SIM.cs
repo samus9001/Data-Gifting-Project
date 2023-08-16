@@ -9,40 +9,37 @@
             get { return _serialNumber; }
         }
 
-        public SIM(string serialNumberLength)
-        {
-            _serialNumber = serialNumberLength;
 
-            if (_serialNumber.Length == 12)
-            {
-                Console.WriteLine("SIM number is valid");
-            }
-            else
+        public SIM(string serialNumber)
+        {
+
+
+            if (serialNumber.Length != 12)
             {
                 throw new ArgumentException("SIM number is invalid");
             }
+            else
+                _serialNumber = serialNumber;
         }
 
         private string _phoneNumber;
 
         public string PhoneNumber
         {
-            get { return _phoneNumber; }
+            get
+            {
+                return _phoneNumber;
+            }
+            set
+            {
+                if (_phoneNumber.Length != 11)
+                {
+                    throw new ArgumentException("Phone number is invalid");
+                }
+                else
+                    _phoneNumber = value;
+
+            }
         }
-
-        //CS0111 error (duplicate type?)
-        //public SIM(string phoneNumberLength)
-        //{
-        //    _phoneNumber = phoneNumberLength;
-
-        //    if (phoneNumberLength.Length == 11)
-        //    {
-        //        Console.WriteLine("Phone number is valid");
-        //    }
-        //    else
-        //    {
-        //        throw new ArgumentException("Phone number is invalid");
-        //    }
-        //}
     }
 }

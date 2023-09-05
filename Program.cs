@@ -18,8 +18,9 @@ namespace DataGifting
         static async Task Main(string[] args)
         {
             var baseUri = "https://id.ee.co.uk/";
-            var uri = $"https://auth.ee.co.uk/e2ea8fbf-98c0-4cf1-a2df-ee9d55ef69c3/B2C_1A_RPBT_SignUpSignIn/oauth2/v2.0/authorize?client_id=d353847f-d273-43b1-b605-aed025068daf&nonce=defaultNonce&redirect_uri=https://api.ee.co.uk/v1/identity/authorize/login&scope=openid%20d353847f-d273-43b1-b605-aed025068daf&response_mode=form_post&response_type=code&state=7a0e14ad-571c-45de-a480-b40ac156521f&requestId=7a0e14ad-571c-45de-a480-b40ac156521f";
-            var p = "B2C_1A_RPBT_SignUpSignIn/";
+            var uri = $"https://auth.ee.co.uk/";
+            var tx = "";
+            var p = "B2C_1A_RPBT_SignUpSignIn";
             var request_type = "RESPONSE";
             var signInName = "sameer99%40outlook.com";
             var password = "D%40tagifting2113";
@@ -55,31 +56,61 @@ namespace DataGifting
                     // send a POST request
                     var postResponse = await client.PostAsync(uri, formContent);
 
+                    // retrieves the response body as a string
+                    string responseBody = await client.GetStringAsync("http://id.ee.co.uk/");
+
+                    //Console.WriteLine("RESPONSE BODY:\n");
+                    //Console.WriteLine(responseBody);
+
+                    // find the start of StateProperties in the response body string
+                    int startIndex = responseBody.IndexOf("StateProperties=");
+
+                    if (startIndex != -1)
+                    {
+                        // find the quotation mark character at the end of StateProperties in the response body string
+                        int endIndex = responseBody.IndexOf('"', startIndex);
+
+                        // extract the substring containing the StateProperties value
+                        string stateProperties = responseBody.Substring(startIndex, endIndex - startIndex);
+
+                        // assign StateProperties to the tx variable
+                        tx = stateProperties;
+                    }
+                    else
+                    {
+                        // handle the case where "StateProperties=" is not found in the response
+                        Console.WriteLine("StateProperties was not found in the response body.");
+                    }
+
+                    //Console.WriteLine($"TX VALUE = {tx}");
+
+                    postResponse = await client.PostAsync(uri, formContent);
+
                     // handle the response content
                     var stringContent = await postResponse.Content.ReadAsStringAsync();
 
                     // check if the POST request was successful
                     if (postResponse.IsSuccessStatusCode)
                     {
-                        Console.WriteLine("POST request was successful\n");
+                        Console.WriteLine($"POST request was successful: {postResponse.StatusCode}\n");
 
-                        // check if the response URL matches the successful login redirect URL
+                        // check if the response URL matches the successful login URL
                         if (postResponse.RequestMessage.RequestUri.AbsoluteUri == "https://ee.co.uk/exp/home")
                         {
                             Console.WriteLine("Login successful!");
-                            Console.WriteLine(stringContent);
+                           // Console.WriteLine(stringContent);
                         }
 
                         else
                         {
-                            Console.WriteLine("Login was not successful. Check credentials or process.");
-                            Console.WriteLine(stringContent);
+                            Console.WriteLine("Login was not successful. Check credentials or process.\n");
+                            //Console.WriteLine(stringContent);
                         }
                     }
                     else
                     {
                         Console.WriteLine($"POST request failed with status code: {postResponse.StatusCode}\n");
-                        Console.WriteLine(stringContent);
+                        //Console.WriteLine(stringContent);
                     }
                 }
                 else

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Xml.Linq;
 
 namespace DataGifting
@@ -13,57 +15,58 @@ namespace DataGifting
         //sim1.PhoneNumber = "07725917672";
         //sim1.SerialNumber = "361308296409";
 
-        public static HttpClient client = new HttpClient();
-
         static async Task Main(string[] args)
         {
             var baseUri = "https://id.ee.co.uk/";
-            var uri = $"https://auth.ee.co.uk/";
+            var uri = "";
+            var loginUri = "https://auth.ee.co.uk/e2ea8fbf-98c0-4cf1-a2df-ee9d55ef69c3/B2C_1A_RPBT_SignUpSignIn/SelfAsserted";
             var tx = "";
             var p = "B2C_1A_RPBT_SignUpSignIn";
             var request_type = "RESPONSE";
             var signInName = "sameer99%40outlook.com";
             var password = "D%40tagifting2113";
+            var redirectUri = "https://ee.co.uk/exp/home";
             var sim = new SIM("361308296409");
             //var phone = new SIM("07725917672");
 
             // create an instance of HttpClientHandler with cookie support
-            var handler = new HttpClientHandler
-            {
-                UseCookies = true
-            };
+            CookieContainer cookies = new CookieContainer();
+            HttpClientHandler handler = new HttpClientHandler();
+            handler.CookieContainer = cookies;
 
             // pass the HttpClientHandler to HttpClient
-            client = new HttpClient(handler);
+            HttpClient client = new HttpClient(handler);
 
             try
             {
                 // send a GET request to retrieve the initial page
-                HttpResponseMessage response = await client.GetAsync(baseUri);
+                HttpResponseMessage initialResponse = await client.GetAsync(baseUri);
+
+                if (initialResponse.IsSuccessStatusCode)
+                {
+                    Console.WriteLine($"initial URL = {baseUri}"); 
+                    Console.WriteLine("\nGET request was successful\n");
+
+                    // extract the new URL from the response
+                    uri = initialResponse.RequestMessage.RequestUri.ToString();
+                }
+
+                // send a GET request to retrieve the redirect page
+                HttpResponseMessage response = await client.GetAsync(uri);
 
                 if (response.IsSuccessStatusCode)
                 {
-                    Console.WriteLine("GET request was successful\n");
-
-                    // simulate form data for the POST request
-                    var formContent = new FormUrlEncodedContent(new[]
-                    {
-                    new KeyValuePair<string, string>("request_type", request_type),
-                    new KeyValuePair<string, string>("signInName", signInName),
-                    new KeyValuePair<string, string>("password", password)
-                });
-
-                    // send a POST request
-                    var postResponse = await client.PostAsync(uri, formContent);
+                    Console.WriteLine($"login page URL = {uri}"); 
+                    Console.WriteLine("\nGET request was successful\n");
 
                     // retrieves the response body as a string
-                    string responseBody = await client.GetStringAsync("http://id.ee.co.uk/");
+                    string responseBody = await client.GetStringAsync(uri);
 
-                    //Console.WriteLine("RESPONSE BODY:\n");
-                    //Console.WriteLine(responseBody);
+                    //Console.WriteLine($"RESPONSE BODY: {responseBody}\n");
 
                     // find the start of StateProperties in the response body string
                     int startIndex = responseBody.IndexOf("StateProperties=");
+
 
                     if (startIndex != -1)
                     {
@@ -75,6 +78,7 @@ namespace DataGifting
 
                         // assign StateProperties to the tx variable
                         tx = stateProperties;
+                        //Console.WriteLine($"TX VALUE = {tx}\n");
                     }
                     else
                     {
@@ -82,9 +86,19 @@ namespace DataGifting
                         Console.WriteLine("StateProperties was not found in the response body.");
                     }
 
-                    //Console.WriteLine($"TX VALUE = {tx}");
+                    Console.Write("\nPOST request header = ");
+                    Console.Write(loginUri + $"?tx={tx}&p={p}\n");
 
-                    postResponse = await client.PostAsync(uri, formContent);
+                    // simulate form data for the POST request
+                    var formContent = new FormUrlEncodedContent(new[]
+                    {
+                    new KeyValuePair<string, string>("request_type", request_type),
+                    new KeyValuePair<string, string>("signInName", signInName),
+                    new KeyValuePair<string, string>("password", password)
+                    });
+
+                    // send a POST request with the query parameters and form data
+                    var postResponse = await client.PostAsync(loginUri + $"?tx={tx}&p={p}", formContent);
 
                     // handle the response content
                     var stringContent = await postResponse.Content.ReadAsStringAsync();
@@ -92,30 +106,33 @@ namespace DataGifting
                     // check if the POST request was successful
                     if (postResponse.IsSuccessStatusCode)
                     {
-                        Console.WriteLine($"POST request was successful: {postResponse.StatusCode}\n");
+                        Console.WriteLine($"\nPOST request was successful: {postResponse.StatusCode}\n");
 
                         // check if the response URL matches the successful login URL
-                        if (postResponse.RequestMessage.RequestUri.AbsoluteUri == "https://ee.co.uk/exp/home")
+                        if (postResponse.RequestMessage.RequestUri.AbsoluteUri == redirectUri)
                         {
-                            Console.WriteLine("Login successful!");
-                           // Console.WriteLine(stringContent);
+                            Console.WriteLine("\nLogin successful!");
+                            // Console.WriteLine(stringContent);
                         }
 
                         else
                         {
-                            Console.WriteLine("Login was not successful. Check credentials or process.\n");
+                            Console.WriteLine("\nLogin was not successful. Check credentials or process.\n");
                             //Console.WriteLine(stringContent);
                         }
                     }
                     else
                     {
-                        Console.WriteLine($"POST request failed with status code: {postResponse.StatusCode}\n");
+                        Console.WriteLine($"\nPOST request failed with status code: {postResponse.StatusCode}\n");
                         //Console.WriteLine(stringContent);
                     }
+
+                    var postResponseContent = await postResponse.Content.ReadAsStringAsync();
+                    Console.WriteLine($"\nResponse Content:{postResponseContent}\n");
                 }
                 else
                 {
-                    Console.WriteLine($"GET request failed with status code: {response.StatusCode}");
+                    Console.WriteLine($"\nGET request failed with status code: {response.StatusCode}");
                     string responseContent = await response.Content.ReadAsStringAsync();
                     Console.WriteLine($"Response Content:\n{responseContent}");
                 }
@@ -130,48 +147,6 @@ namespace DataGifting
                 Console.WriteLine("\nAn unexpected exception occurred!");
                 Console.WriteLine("Message :{0} ", ex.Message);
             }
-
-            // retrieves the entire HTTP response
-            //try
-            //{
-            //    var uri = "http://id.ee.co.uk/";
-            //    var response = await client.GetAsync(uri);
-
-            //    if (response.IsSuccessStatusCode)
-            //    {
-            //        Console.WriteLine("HTTP RESPONSE:\n");
-            //        Console.WriteLine(response);
-            //    }
-            //    else
-            //    {
-            //        Console.WriteLine("\nException Caught!");
-            //    }
-            //}
-            //catch (HttpRequestException e)
-            //{
-            //    Console.WriteLine("\nHttpRequestException Caught!");
-            //    Console.WriteLine("Message :{0} ", e.Message);
-            //}
-            //catch (Exception ex)
-            //{
-            //    Console.WriteLine("\nAn unexpected exception occurred!");
-            //    Console.WriteLine("Message :{0} ", ex.Message);
-            //}
-
-            //Console.WriteLine("\n");
-
-            // retrieves the response body as a string
-            //try
-            //{
-            //    string responseBody = await client.GetStringAsync("http://id.ee.co.uk/");
-            //    Console.WriteLine("RESPONSE BODY:\n");
-            //    Console.WriteLine(responseBody);
-            //}
-            //catch (HttpRequestException e)
-            //{
-            //    Console.WriteLine("\nException Caught!");
-            //    Console.WriteLine("Message :{0} ", e.Message);
-            //}
         }
     }
 }

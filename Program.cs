@@ -19,12 +19,12 @@ namespace DataGifting
         {
             var baseUri = "https://id.ee.co.uk/";
             var uri = "";
-            var loginUri = "https://auth.ee.co.uk/e2ea8fbf-98c0-4cf1-a2df-ee9d55ef69c3/B2C_1A_RPBT_SignUpSignIn/SelfAsserted";
+            var loginUri = "https://auth.ee.co.uk/e2ea8fbf-98c0-4cf1-a2df-ee9d55ef69c3/B2C_1A_RPBT_SignUpSignIn/client/perftrace";
             var tx = "";
             var p = "B2C_1A_RPBT_SignUpSignIn";
             var request_type = "RESPONSE";
-            var signInName = "sameer99%40outlook.com";
-            var password = "D%40tagifting2113";
+            var signInName = "sameer99@outlook.com";
+            var password = "D@tagifting2113";
             var redirectUri = "https://ee.co.uk/exp/home";
             var sim = new SIM("361308296409");
             //var phone = new SIM("07725917672");
@@ -33,9 +33,24 @@ namespace DataGifting
             CookieContainer cookies = new CookieContainer();
             HttpClientHandler handler = new HttpClientHandler();
             handler.CookieContainer = cookies;
+            handler.UseCookies = true;
             
             // pass the HttpClientHandler to HttpClient
             HttpClient client = new HttpClient(handler);
+
+            // set the headers
+            client.BaseAddress = new Uri("https://auth.ee.co.uk");
+            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/117.0");
+            client.DefaultRequestHeaders.Add("Accept", "application/json, text/javascript, */*; q=0.01");
+            client.DefaultRequestHeaders.Add("Accept-Language", "en-GB,en;q=0.5");
+            client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip, deflate, br");
+            client.DefaultRequestHeaders.Add("X-Requested-With", "XMLHttpRequest");
+            client.DefaultRequestHeaders.Add("Origin", "https://auth.ee.co.uk");
+            client.DefaultRequestHeaders.Add("DNT", "1");
+            client.DefaultRequestHeaders.Add("Connection", "keep-alive");
+            client.DefaultRequestHeaders.Add("Sec-Fetch-Dest", "empty");
+            client.DefaultRequestHeaders.Add("Sec-Fetch-Mode", "cors");
+            client.DefaultRequestHeaders.Add("Sec-Fetch-Site", "same-origin");
 
             try
             {
@@ -86,8 +101,9 @@ namespace DataGifting
                         Console.WriteLine("StateProperties was not found in the response body.");
                     }
 
-                    Console.Write("\nPOST request header = ");
-                    Console.Write(loginUri + $"?tx={tx}&p={p}\n");
+                    var postRequestURL = loginUri + $"?tx={tx}&p={p}";
+                    Console.Write("POST request header = ");
+                    Console.Write( $"{postRequestURL}\n");
 
                     // simulate form data for the POST request
                     var formContent = new FormUrlEncodedContent(new[]
@@ -98,7 +114,7 @@ namespace DataGifting
                     });
 
                     // send a POST request with the query parameters and form data
-                    var postResponse = await client.PostAsync(loginUri + $"?tx={tx}&p={p}", formContent);
+                    var postResponse = await client.PostAsync(postRequestURL, formContent);
 
                     // handle the response content
                     var stringContent = await postResponse.Content.ReadAsStringAsync();
@@ -124,7 +140,7 @@ namespace DataGifting
                     else
                     {
                         Console.WriteLine($"\nPOST request failed with status code: {postResponse.StatusCode}\n");
-                        //Console.WriteLine(stringContent);
+                        Console.WriteLine(postResponse);
                     }
 
                     var postResponseContent = await postResponse.Content.ReadAsStringAsync();

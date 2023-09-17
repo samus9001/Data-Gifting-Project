@@ -19,7 +19,7 @@ namespace DataGifting
         {
             var baseUri = "https://id.ee.co.uk/";
             var uri = "";
-            var loginUri = "https://auth.ee.co.uk/e2ea8fbf-98c0-4cf1-a2df-ee9d55ef69c3/B2C_1A_RPBT_SignUpSignIn/client/perftrace";
+            var loginUri = "https://auth.ee.co.uk/e2ea8fbf-98c0-4cf1-a2df-ee9d55ef69c3/B2C_1A_RPBT_SignUpSignIn/SelfAsserted";
             var tx = "";
             var p = "B2C_1A_RPBT_SignUpSignIn";
             var request_type = "RESPONSE";
@@ -77,19 +77,49 @@ namespace DataGifting
                     // retrieves the response body as a string
                     string responseBody = await client.GetStringAsync(uri);
 
-                    //Console.WriteLine($"RESPONSE BODY: {responseBody}\n");
+                    Console.WriteLine($"RESPONSE BODY: {responseBody}\n");
+
+                    // Define the prefix to look for
+                    string csrfPrefix = "\"csrf\":\"";
+
+                    // Find the start and end indexes of the CSRF token
+                    int csrfStartIndex = responseBody.IndexOf(csrfPrefix);
+
+                    if (csrfStartIndex != -1)
+                    {
+                        csrfStartIndex += csrfPrefix.Length; // Move past the prefix
+
+                        int csrfEndIndex = responseBody.IndexOf('"', csrfStartIndex);
+
+                        if (csrfEndIndex != -1)
+                        {
+                            // Extract the substring containing the CSRF token value
+                            string csrf = responseBody.Substring(csrfStartIndex, csrfEndIndex - csrfStartIndex);
+
+                            // Assign csrf token to the X-CSRF-TOKEN header
+                            client.DefaultRequestHeaders.Add("X-CSRF-TOKEN", csrf);
+                            //Console.WriteLine($"CSRF VALUE = {csrf}\n");
+                        }
+                        else
+                        {
+                            Console.WriteLine("Failed to extract CSRF token value.");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("CSRF token prefix was not found in the response body.");
+                    }
 
                     // find the start of StateProperties in the response body string
-                    int startIndex = responseBody.IndexOf("StateProperties=");
+                    int txIndex = responseBody.IndexOf("StateProperties=");
 
-
-                    if (startIndex != -1)
+                    if (txIndex != -1)
                     {
                         // find the quotation mark character at the end of StateProperties in the response body string
-                        int endIndex = responseBody.IndexOf('"', startIndex);
+                        int txEndIndex = responseBody.IndexOf('"', txIndex);
 
                         // extract the substring containing the StateProperties value
-                        string stateProperties = responseBody.Substring(startIndex, endIndex - startIndex);
+                        string stateProperties = responseBody.Substring(txIndex, txEndIndex - txIndex);
 
                         // assign StateProperties to the tx variable
                         tx = stateProperties;
@@ -112,6 +142,12 @@ namespace DataGifting
                     new KeyValuePair<string, string>("signInName", signInName),
                     new KeyValuePair<string, string>("password", password)
                     });
+
+                    // Modify the Content-Type header of the formContent to include the charset
+                    formContent.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded")
+                    {
+                        CharSet = "UTF-8"
+                    };
 
                     // send a POST request with the query parameters and form data
                     var postResponse = await client.PostAsync(postRequestURL, formContent);

@@ -19,6 +19,7 @@ namespace DataGifting
         {
             var baseUri = "https://id.ee.co.uk/";
             var uri = "";
+            string responseBody = null;
             var loginUri = "https://auth.ee.co.uk/e2ea8fbf-98c0-4cf1-a2df-ee9d55ef69c3/B2C_1A_RPBT_SignUpSignIn/SelfAsserted";
             var tx = "";
             var p = "B2C_1A_RPBT_SignUpSignIn";
@@ -34,7 +35,7 @@ namespace DataGifting
             HttpClientHandler handler = new HttpClientHandler();
             handler.CookieContainer = cookies;
             handler.UseCookies = true;
-            
+
             // pass the HttpClientHandler to HttpClient
             HttpClient client = new HttpClient(handler);
 
@@ -59,7 +60,7 @@ namespace DataGifting
 
                 if (initialResponse.IsSuccessStatusCode)
                 {
-                    Console.WriteLine($"initial URL = {baseUri}"); 
+                    Console.WriteLine($"initial URL = {baseUri}");
                     Console.WriteLine("\nGET request was successful\n");
 
                     // extract the new URL from the response
@@ -71,16 +72,23 @@ namespace DataGifting
 
                 if (response.IsSuccessStatusCode)
                 {
-                    Console.WriteLine($"login page URL = {uri}"); 
+                    Console.WriteLine($"login page URL = {uri}");
                     Console.WriteLine("\nGET request was successful\n");
 
                     // retrieves the response body as a string
-                    string responseBody = await client.GetStringAsync(uri);
+                    responseBody = await client.GetStringAsync(uri);
 
                     Console.WriteLine($"RESPONSE BODY: {responseBody}\n");
+                }
+                else
+                {
+                    Console.WriteLine($"\nGET request failed with status code: {response.StatusCode}");
+                    string responseContent = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine($"Response Content:\n{responseContent}");
+                }
 
-                    // Define the prefix to look for
-                    string csrfPrefix = "\"csrf\":\"";
+                // Define the prefix to look for
+                string csrfPrefix = "\"csrf\":\"";
 
                     // Find the start and end indexes of the CSRF token
                     int csrfStartIndex = responseBody.IndexOf(csrfPrefix);
@@ -133,7 +141,7 @@ namespace DataGifting
 
                     var postRequestURL = loginUri + $"?tx={tx}&p={p}";
                     Console.Write("POST request header = ");
-                    Console.Write( $"{postRequestURL}\n");
+                    Console.Write($"{postRequestURL}\n");
 
                     // simulate form data for the POST request
                     var formContent = new FormUrlEncodedContent(new[]
@@ -182,13 +190,7 @@ namespace DataGifting
                     var postResponseContent = await postResponse.Content.ReadAsStringAsync();
                     Console.WriteLine($"\nResponse Content:{postResponseContent}\n");
                 }
-                else
-                {
-                    Console.WriteLine($"\nGET request failed with status code: {response.StatusCode}");
-                    string responseContent = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine($"Response Content:\n{responseContent}");
-                }
-            }
+                
             catch (HttpRequestException e)
             {
                 Console.WriteLine("\nHttpRequestException Caught!");

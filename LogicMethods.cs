@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Http;
 using System.Net.Http.Headers;
 
 namespace DataGifting
@@ -22,10 +23,11 @@ namespace DataGifting
             client.DefaultRequestHeaders.Add("Sec-Fetch-Dest", "empty");
             client.DefaultRequestHeaders.Add("Sec-Fetch-Mode", "cors");
             client.DefaultRequestHeaders.Add("Sec-Fetch-Site", "same-origin");
+            client.DefaultRequestHeaders.Add("Authorization", "Bearer ");
         }
 
         /// <summary>
-        /// creates the initial GET request
+        /// sets the initial GET request
         /// </summary>
         /// <param name="client"></param>
         /// <param name="baseUri"></param>
@@ -56,13 +58,13 @@ namespace DataGifting
         }
 
         /// <summary>
-        /// creates the login page GET request
+        /// sets the login page GET request
         /// </summary>
         /// <param name="client"></param>
         /// <param name="uri"></param>
         /// <param name="responseBody"></param>
         /// <returns></returns>
-        public static async Task<string> SendLoginGetRequest(HttpClient client, string uri, string responseBody)
+        public static async Task<string> SendLoginGetRequest(HttpClient client, string uri)
         {
             // send a GET request to retrieve the login page
             HttpResponseMessage response = await client.GetAsync(uri);
@@ -73,10 +75,10 @@ namespace DataGifting
                 Console.WriteLine("login page GET request was successful\n");
 
                 // retrieves the response body as a string
-                responseBody = await client.GetStringAsync(uri);
-                return responseBody;
-
+                string responseBody = await client.GetStringAsync(uri);
                 //Console.WriteLine($"RESPONSE BODY: {responseBody}\n");
+
+                return responseBody;
             }
             else
             {
@@ -156,7 +158,7 @@ namespace DataGifting
         }
 
         /// <summary>
-        /// creates the POST request
+        /// sets the initial POST request
         /// </summary>
         /// <param name="client"></param>
         /// <param name="loginUri"></param>
@@ -166,10 +168,10 @@ namespace DataGifting
         /// <param name="signInName"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        public static async Task<HttpResponseMessage> SendPostRequest(HttpClient client, string loginUri, string tx, string p, string request_type, string signInName, string password)
+        public static async Task<HttpResponseMessage> SendInitialPostRequest(HttpClient client, string loginUri, string tx, string p, string request_type, string signInName, string password)
         {
             // set the POST request header
-            var postRequestURL = loginUri + $"?tx={tx}&p={p}";
+            var initialPostRequestURL = loginUri + $"?tx={tx}&p={p}";
             //Console.Write($"POST request header = {postRequestURL}");
 
             // simulate form data for the POST request
@@ -178,7 +180,7 @@ namespace DataGifting
                     new KeyValuePair<string, string>("request_type", request_type),
                     new KeyValuePair<string, string>("signInName", signInName),
                     new KeyValuePair<string, string>("password", password)
-                    });
+            });
 
             // modify the Content-Type header of the formContent to include the charset
             formContent.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded")
@@ -187,39 +189,26 @@ namespace DataGifting
             };
 
             // send a POST request with the query parameters and form data
-            var postResponse = await client.PostAsync(postRequestURL, formContent);
+            var postResponse = await client.PostAsync(initialPostRequestURL, formContent);
 
             // handle the response content
             var stringContent = await postResponse.Content.ReadAsStringAsync();
 
-            return await client.PostAsync(postRequestURL, formContent);
+            return await client.PostAsync(initialPostRequestURL, formContent);
         }
 
         /// <summary>
-        /// sets the POST response handling
+        /// sets the initial POST request response handling
         /// </summary>
         /// <param name="postResponse"></param>
         /// <param name="redirectUri"></param>
         /// <returns></returns>
-        public static async Task HandlePostResponse(HttpResponseMessage postResponse, string redirectUri)
+        public static async Task HandleInitialPostResponse(HttpResponseMessage postResponse)
         {
             // check if the POST request was successful
             if (postResponse.IsSuccessStatusCode)
             {
                 Console.WriteLine($"\nPOST request was successful: {postResponse.StatusCode}\n");
-
-                // check if the response URL matches the successful login URL
-                if (postResponse.RequestMessage.RequestUri.AbsoluteUri == redirectUri)
-                {
-                    Console.WriteLine("\nLogin successful!");
-                    // Console.WriteLine(stringContent);
-                }
-
-                else
-                {
-                    Console.WriteLine("Login was not successful. Check credentials or process.\n");
-                    //Console.WriteLine(stringContent);
-                }
             }
             else
             {
@@ -229,6 +218,110 @@ namespace DataGifting
 
             var postResponseContent = await postResponse.Content.ReadAsStringAsync();
             Console.WriteLine($"Response Content:{postResponseContent}\n");
+        }
+
+        /// <summary>
+        /// sets the GET request for the Dashboard page
+        /// </summary>
+        /// <param name="client"></param>
+        /// <param name="redirectUri"></param>
+        /// <param name="uri"></param>
+        /// <returns></returns>
+        public static async Task<string> SendDashboardGetRequest(HttpClient client, string redirectUri)
+        {
+            // send a GET request to retrieve the dashboard page
+            HttpResponseMessage dashboardResponse = await client.GetAsync(redirectUri);
+
+            if (dashboardResponse.IsSuccessStatusCode)
+            {
+                Console.WriteLine("\nDashboard GET request was successful\n");
+            }
+            else
+            {
+                Console.WriteLine($"\nDashboard GET request failed with status code: {dashboardResponse.StatusCode}");
+                string dashboardResponseContent = await dashboardResponse.Content.ReadAsStringAsync();
+                Console.WriteLine($"Response Content:\n{dashboardResponseContent}");
+            }
+            return null;
+        }
+
+        public static async Task<string> SendAuthEndpointGetRequest(HttpClient client, string authEndpointUri)
+        {
+            // send a GET request to retrieve the authentication endpoint information
+            HttpResponseMessage authEndpointResponse = await client.GetAsync(authEndpointUri);
+
+            if (authEndpointResponse.IsSuccessStatusCode)
+            {
+                Console.WriteLine("Authentication endpoint GET request was successful\n");
+
+                // retrieves the response body as a string
+                // string authEndpointResponseBody = await client.GetStringAsync(authEndpointUri);
+                // Console.WriteLine($"RESPONSE BODY: {authEndpointResponseBody}\n");
+
+                // return authEndpointResponseBody;
+            }
+            else
+            {
+                Console.WriteLine($"\nAuthentication endpoint GET request failed with status code: {authEndpointResponse.StatusCode}");
+                string authEndpointResponseContent = await authEndpointResponse.Content.ReadAsStringAsync();
+                Console.WriteLine($"Response Content:\n{authEndpointResponseContent}");
+            }
+            return null;
+        }
+
+        //public static async Task<HttpResponseMessage> SendAuthenticationPostRequest(HttpClient client, string authenticationUri, string request_type, string signInName, string password)
+        //{
+        //    // set the POST request header
+        //    var authenticationPostRequestURL = authenticationUri;
+        //    //Console.Write($"POST request header = {postRequestURL}");
+
+        //    // simulate form data for the POST request
+        //    var formContent = new FormUrlEncodedContent(new[]
+        //    {
+        //            new KeyValuePair<string, string>("request_type", request_type),
+        //            new KeyValuePair<string, string>("signInName", signInName),
+        //            new KeyValuePair<string, string>("password", password)
+        //    });
+
+        //    // modify the Content-Type header of the formContent to include the charset
+        //    formContent.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded")
+        //    {
+        //        CharSet = "UTF-8"
+        //    };
+
+        //    // send a POST request with the query parameters and form data
+        //    var postResponse = await client.PostAsync(authenticationPostRequestURL, formContent);
+
+        //    // handle the response content
+        //    var stringContent = await postResponse.Content.ReadAsStringAsync();
+
+        //    return await client.PostAsync(authenticationPostRequestURL, formContent);
+        //}
+
+        public static async Task<string> SendUserDataGetRequest(HttpClient client, string userDataUri)
+        {
+            HttpResponseMessage userDataResponse = await client.GetAsync(userDataUri);
+
+            if (userDataResponse.IsSuccessStatusCode)
+            {
+                string userDataJson = await userDataResponse.Content.ReadAsStringAsync();
+                Console.WriteLine("User Data JSON:");
+                Console.WriteLine(userDataJson);
+
+                // retrieves the response body as a string
+                string userDataResponseBody = await client.GetStringAsync(userDataUri);
+                Console.WriteLine($"RESPONSE BODY: {userDataResponseBody}\n");
+
+                return userDataResponseBody;
+            }
+            else
+            {
+                Console.WriteLine($"Request failed with status code: {userDataResponse.StatusCode}");
+                //string userDataResponseContent = await userDataResponse.Content.ReadAsStringAsync();
+                //Console.WriteLine($"Response Content:\n{userDataResponseContent}");
+            }
+
+            return null;
         }
     }
 }

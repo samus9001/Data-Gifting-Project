@@ -3,7 +3,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Xml.Linq;
+using System.Web;
 
 namespace DataGifting
 {
@@ -21,16 +23,21 @@ namespace DataGifting
             string uri = "";
             string responseBody = null;
             string loginUri = "https://auth.ee.co.uk/e2ea8fbf-98c0-4cf1-a2df-ee9d55ef69c3/B2C_1A_RPBT_SignUpSignIn/SelfAsserted/";
+            string dashboardUri = "https://id.ee.co.uk/id/dashboard";
+            string redirectUri = "https://ee.co.uk/exp/home/";
+            string openidUri = "https://auth.ee.co.uk/e2ea8fbf-98c0-4cf1-a2df-ee9d55ef69c3/b2c_1a_rpbt_signupsignin/v2.0/.well-known/openid-configuration";
+            string useridUri = "https://auth.ee.co.uk/common/v1/customer-identity-profiles?identity-id=2dcfe49c-81a0-4581-8662-7735017ea90b";
+            string identityUri = "https://api.ee.co.uk/digital/v1/person-identities/self";
+            string usageDataUri = "https://ee.co.uk/plans-subscriptions/mobile/usage-since-last-bill";
+            string userDataUri = "https://ee.co.uk/app/api/basic";
+            string dataGiftUri = "https://ee.co.uk/plans-subscriptions/mobile/data-gifting";
+
             string tx = "";
             string p = "B2C_1A_RPBT_SignUpSignIn";
             string request_type = "RESPONSE";
             string signInName = "sameer99@outlook.com";
             string password = "D@tagifting2113";
-            string redirectUri = "https://ee.co.uk/exp/home/";
-            string authEndpointUri = "https://auth.ee.co.uk/e2ea8fbf-98c0-4cf1-a2df-ee9d55ef69c3/b2c_1a_rpbt_signupsignin/v2.0/.well-known/openid-configuration";
-            //string authenticationUri = "https://auth.ee.co.uk/e2ea8fbf-98c0-4cf1-a2df-ee9d55ef69c3/b2c_1a_rpbt_signupsignin/oauth2/v2.0/token/";
-            string userDataUri = "https://ee.co.uk/app/api/basic";
-            //var sim = new SIM("361308296409");
+            //var sim = new SIM("361308296409");]
             //var phone = new SIM("07725917672");
 
             // create an instance of HttpClientHandler with cookie support
@@ -38,15 +45,31 @@ namespace DataGifting
             HttpClientHandler handler = new HttpClientHandler();
             handler.CookieContainer = cookies;
             handler.UseCookies = true;
+            handler.AllowAutoRedirect = false;
             HttpClient client = new HttpClient(handler); // pass the HttpClientHandler to HttpClient
 
             LogicMethods.SetDefaultRequestHeaders(client);
 
             try
             {
-                uri = await LogicMethods.SendInitialGetRequest(client, baseUri, uri);
+                // store the call for the first GET request
+                Uri firstLocationRedirect = await LogicMethods.SendFirstGetRequest(client, baseUri, uri);
+                Uri secondLocationRedirect = null;
 
-                responseBody = await LogicMethods.SendLoginGetRequest(client, uri);
+                if (firstLocationRedirect != null)
+                {
+                    // store the call for the first redirect GET request
+                    secondLocationRedirect = await LogicMethods.SendFirstRedirectGetRequest(client, baseUri, firstLocationRedirect);
+                }
+
+                if (secondLocationRedirect != null)
+                {
+                    Uri login = await LogicMethods.SendSecondRedirectGetRequest(client, secondLocationRedirect);
+                }
+
+                //uri = await LogicMethods.SendInitialGetRequest(client, baseUri, uri);
+
+                //responseBody = await LogicMethods.SendLoginGetRequest(client, uri);
 
                 LogicMethods.ExtractCsrfToken(client, responseBody);
 
@@ -56,12 +79,19 @@ namespace DataGifting
 
                 await LogicMethods.HandleInitialPostResponse(postResponse);
 
-                await LogicMethods.SendDashboardGetRequest(client, redirectUri);
+                await LogicMethods.SendDashboardGetRequest(client, dashboardUri, redirectUri);
 
-                //await LogicMethods.SendAuthEndpointGetRequest(client, authEndpointUri);
+                await LogicMethods.SendOpenidGetRequest(client, openidUri);
+
+                await LogicMethods.SendUseridGetRequest(client, useridUri);
+
+                await LogicMethods.SendIdentityGetRequest(client, identityUri);
+
+                await LogicMethods.SendUsageDataGetRequest(client, usageDataUri);
 
                 await LogicMethods.SendUserDataGetRequest(client, userDataUri);
 
+                //await LogicMethods.SendDataGiftGetRequest(client, dataGiftUri);
             }
 
             catch (HttpRequestException e)

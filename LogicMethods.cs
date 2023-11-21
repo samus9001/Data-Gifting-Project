@@ -15,7 +15,7 @@ namespace DataGifting
         /// <param name="client"></param>
         public static void SetDefaultRequestHeaders(HttpClient client)
         {
-            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/118.0");
+            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/119.0");
             client.DefaultRequestHeaders.Add("Accept", "application/json, text/plain, */*");
             client.DefaultRequestHeaders.Add("Accept-Language", "en-GB,en;q=0.5");
             client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip, deflate, br");
@@ -33,18 +33,17 @@ namespace DataGifting
         /// </summary>
         /// <param name="client"></param>
         /// <param name="baseUri"></param>
-        /// <param name="uri"></param>
         /// <returns></returns>
-        public static async Task<Uri> SendFirstGetRequest(HttpClient client, string baseUri, string uri)
+        public static async Task<Uri> SendFirstGetRequest(HttpClient client, string baseUri)
         {
             // send a GET request to retrieve the first page
             HttpResponseMessage response = await client.GetAsync(baseUri);
-            Console.WriteLine($"first GET request URI = {baseUri}");
 
             // handle the case when the GET request is successful
             if (response.StatusCode == HttpStatusCode.Found)
             {
                 Console.WriteLine("\nfirst GET request was successful");
+                Console.WriteLine($"first GET request URI = {baseUri}");
             }
             else
             {
@@ -52,11 +51,14 @@ namespace DataGifting
                 Console.WriteLine($"initial GET request failed with status code: {response.StatusCode}");
                 string responseContent = await response.Content.ReadAsStringAsync();
                 Console.WriteLine($"Response Content:\n{responseContent}");
+                Console.WriteLine($"first GET request URI = {baseUri}");
                 return null;
             }
 
             // store the first response Location header value
             var firstLocationHeader = response.Headers.Location;
+
+            Console.WriteLine($"\nfirst Location header = {firstLocationHeader}");
 
             return firstLocationHeader;
         }
@@ -66,22 +68,21 @@ namespace DataGifting
         /// </summary>
         /// <param name="client"></param>
         /// <param name="baseUri"></param>
-        /// <param name="locationHeader"></param>
+        /// <param name="firstLocationHeader"></param>
         /// <returns></returns>
         public static async Task<Uri> SendFirstRedirectGetRequest(HttpClient client, string baseUri, Uri firstLocationHeader)
         {
             // send a GET request to retrieve the first redirect page
             HttpResponseMessage response = await client.GetAsync($"{baseUri}{firstLocationHeader}");
 
-            Console.WriteLine($"\n\nfirst redirect GET request URI = {baseUri}{firstLocationHeader}");
-
             // handle the case when the GET request is successful
             if (response.StatusCode == HttpStatusCode.Found)
             {
-                Console.WriteLine("\nfirst redirect GET request was successful");
+                Console.WriteLine("\n\nfirst redirect GET request was successful");
+                Console.WriteLine($"first redirect GET request URI = {baseUri}{firstLocationHeader}");
 
                 // return the uri from the first redirect
-                return response.Headers.Location;
+                //return response.RequestMessage.RequestUri;
             }
             else
             {
@@ -89,8 +90,16 @@ namespace DataGifting
                 Console.WriteLine($"first redirect GET request failed with status code: {response.StatusCode}");
                 string responseContent = await response.Content.ReadAsStringAsync();
                 Console.WriteLine($"Response Content:\n{responseContent}");
+                Console.WriteLine($"\n\nfirst redirect GET request URI = {baseUri}{firstLocationHeader}");
                 return null;
             }
+
+            // store the second response Location header value
+            var secondLocationHeader = response.Headers.Location;
+
+            Console.WriteLine($"\n\nsecond Location header = {secondLocationHeader}");
+
+            return secondLocationHeader;
         }
 
         /// <summary>
@@ -104,61 +113,51 @@ namespace DataGifting
             // send a GET request to retrieve the second redirect page
             HttpResponseMessage response = await client.GetAsync(secondLocationRedirect);
 
-            // store the second response Location header value
-            var secondLocationHeader = response.Headers.Location;
-
-            Console.WriteLine($"\n\nsecond redirect GET request URI = {secondLocationHeader}");
-
-            if (secondLocationHeader != null)
+            if (response.StatusCode == HttpStatusCode.Found)
             {
                 Console.WriteLine("\nsecond redirect GET request was successful");
+                Console.WriteLine($"second redirect GET request URI = {secondLocationRedirect}");
+            }
+            else
+            {
+                // handle the case when the GET request is not successful
+                Console.WriteLine($"second redirect GET request failed with status code: {response.StatusCode}");
+                string responseContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Response Content:\n{responseContent}");
+                //Console.WriteLine($"\n\nsecond redirect GET request URI = {secondLocationRedirect}");
+                return null;
             }
 
-            return secondLocationHeader;
+            // store the third response Location header value
+            var thirdLocationHeader = response.Headers.Location;
+
+            Console.WriteLine($"\n\nthird Location header = {thirdLocationHeader}");
+
+            Uri authorizeReferrerUri = new Uri($"{thirdLocationHeader}");
+
+            return thirdLocationHeader;
         }
-
-        // Parse the query string
-        //NameValueCollection queryParameters = HttpUtility.ParseQueryString(finalLoc.Query);
-
-
-        //    if (initialResponse.IsSuccessStatusCode)
-        //    {
-        //        //Console.WriteLine($"initial URL = {baseUri}");
-        //        Console.WriteLine("initial GET request was successful\n");
-
-        //        // extract the new URL from the response
-        //        uri = initialResponse.RequestMessage.RequestUri.ToString();
-        //        //Console.WriteLine($"uri = {uri}");
-        //        return uri;
-        //    }
-        //    else
-        //    {
-        //        Console.WriteLine($"\ninitial GET request failed with status code: {initialResponse.StatusCode}");
-        //        string responseContent = await initialResponse.Content.ReadAsStringAsync();
-        //        Console.WriteLine($"Response Content:\n{responseContent}");
-        //    }
-        //    return null;
-        //}
 
         /// <summary>
         /// sets the login page GET request
         /// </summary>
         /// <param name="client"></param>
-        /// <param name="uri"></param>
-        /// <param name="responseBody"></param>
+        /// <param name="thirdLocationRedirect"></param>
         /// <returns></returns>
-        public static async Task<string> SendLoginGetRequest(HttpClient client, string uri)
+        public static async Task<string> SendLoginGetRequest(HttpClient client, Uri thirdLocationRedirect)
         {
             // send a GET request to retrieve the login page
-            HttpResponseMessage response = await client.GetAsync(uri);
+            HttpResponseMessage response = await client.GetAsync(thirdLocationRedirect);
+
+            //Console.WriteLine($"\nlogin page GET request URL = {thirdLocationRedirect}");
 
             if (response.IsSuccessStatusCode)
             {
-                //Console.WriteLine($"login page URL = {responseBody}");
-                Console.WriteLine("login page GET request was successful\n");
+                Console.WriteLine("\nlogin page GET request was successful");
+                Console.WriteLine($"third redirect GET request URI = {thirdLocationRedirect}\n");
 
                 // retrieves the response body as a string
-                string responseBody = await client.GetStringAsync(uri);
+                string responseBody = await client.GetStringAsync(thirdLocationRedirect);
                 //Console.WriteLine($"RESPONSE BODY: {responseBody}\n");
 
                 return responseBody;
@@ -173,11 +172,43 @@ namespace DataGifting
         }
 
         /// <summary>
-        /// extracts the CSRF token value from the response and assigns it to csrf string
+        /// sets the login page GET request
+        /// </summary>
+        /// <param name="client"></param>
+        /// <param name="uri"></param>
+        /// <param name="responseBody"></param>
+        /// <returns></returns>
+        //public static async Task<string> SendLoginGetRequest(HttpClient client, string uri)
+        //{
+        //    // send a GET request to retrieve the login page
+        //    HttpResponseMessage response = await client.GetAsync(uri);
+
+        //    if (response.IsSuccessStatusCode)
+        //    {
+        //        //Console.WriteLine($"login page URL = {responseBody}");
+        //        Console.WriteLine("login page GET request was successful\n");
+
+        //        // retrieves the response body as a string
+        //        string responseBody = await client.GetStringAsync(uri);
+        //        //Console.WriteLine($"RESPONSE BODY: {responseBody}\n");
+
+        //        return responseBody;
+        //    }
+        //    else
+        //    {
+        //        Console.WriteLine($"\nlogin page GET request failed with status code: {response.StatusCode}");
+        //        string responseContent = await response.Content.ReadAsStringAsync();
+        //        Console.WriteLine($"Response Content:\n{responseContent}");
+        //    }
+        //    return null;
+        //}
+
+        /// <summary>
+        /// extracts the CSRF token value from the response and assigns it to csrf_token
         /// </summary>
         /// <param name="client"></param>
         /// <param name="responseBody"></param>
-        public static void ExtractCsrfToken(HttpClient client, string responseBody)
+        public static string ExtractCsrfToken(HttpClient client, string responseBody)
         {
             string csrfPrefix = "\"csrf\":\"";
 
@@ -194,11 +225,21 @@ namespace DataGifting
                 if (csrfEndIndex != -1)
                 {
                     // extract the substring containing the CSRF token value
-                    string csrf = responseBody.Substring(csrfStartIndex, csrfEndIndex - csrfStartIndex);
+                    string csrf_token = responseBody.Substring(csrfStartIndex, csrfEndIndex - csrfStartIndex);
+
+                    // remove the existing "X-CSRF-TOKEN" header if it exists
+                    if (client.DefaultRequestHeaders.Contains("X-CSRF-TOKEN"))
+                    {
+                        client.DefaultRequestHeaders.Remove("X-CSRF-TOKEN");
+                    }
+
+                    //Console.WriteLine($"RESPONSE BODY: {responseBody}\n");
 
                     // assign CSRF token to the X-CSRF-TOKEN header
-                    client.DefaultRequestHeaders.Add("X-CSRF-TOKEN", csrf);
-                    //Console.WriteLine($"CSRF VALUE = {csrf}\n");
+                    client.DefaultRequestHeaders.Add("X-CSRF-TOKEN", csrf_token);
+                    //Console.WriteLine($"\nCSRF VALUE = {csrf_token}\n");
+
+                    return csrf_token;
                 }
                 else
                 {
@@ -209,6 +250,7 @@ namespace DataGifting
             {
                 Console.WriteLine("CSRF token prefix was not found in the response body.");
             }
+            return null;
         }
 
         /// <summary>
@@ -216,96 +258,97 @@ namespace DataGifting
         /// </summary>
         /// <param name="responseBody"></param>
         /// <param name="tx"></param>
-        public static void ExtractTxValue(string responseBody, ref string tx)
+        public static string ExtractTxValue(string responseBody)
         {
-            // find the start of StateProperties in the response body string
-            int txIndex = responseBody.IndexOf("StateProperties=");
+            string txPrefix = "StateProperties=";
 
-            if (txIndex != -1)
+            // find the start of StateProperties in the response body string
+            int txStartIndex = responseBody.IndexOf(txPrefix);
+
+            if (txStartIndex != -1)
             {
                 // find the quotation mark character at the end of StateProperties in the response body string
-                int txEndIndex = responseBody.IndexOf('"', txIndex);
+                int txEndIndex = responseBody.IndexOf('"', txStartIndex);
 
-                // extract the substring containing the StateProperties value
-                string stateProperties = responseBody.Substring(txIndex, txEndIndex - txIndex);
+                if (txEndIndex != -1)
+                {
+                    // extract the substring containing the StateProperties value
+                    string tx = responseBody.Substring(txStartIndex, txEndIndex - txStartIndex);
 
-                // assign StateProperties to the tx variable
-                tx = stateProperties;
-                //Console.WriteLine($"TX VALUE = {tx}\n");
+                    //Console.WriteLine($"TX VALUE = {tx}\n");
+
+                    return tx;
+                }
+                else
+                {
+                    Console.WriteLine("Failed to extract TX value.");
+                }
             }
             else
             {
-                // handle the case where "StateProperties=" is not found in the response
-                Console.WriteLine("StateProperties was not found in the response body.");
+                Console.WriteLine("StateProperties prefix was not found in the response body.");
             }
+            return null;
         }
 
-        //public static async Task<HttpResponseMessage> SendPreInitialPostRequest(HttpClient client, string loginUri, string tx, string p)
-        //{
-        //    // set the POST request header
-        //    var initialPostRequestURL = loginUri + $"?tx={tx}&p={p}";
-        //    Console.Write($"POST request header = {initialPostRequestURL}");
-
-        //    // Create an empty request content (no data in the request body)
-        //    var emptyContent = new StringContent(string.Empty);
-
-        //    // Send the POST request with empty content and receive the response
-        //    HttpResponseMessage postResponse = await client.PostAsync(initialPostRequestURL, emptyContent);
-
-        //    return postResponse;
-        //}
-
-        ///// <summary>
-        ///// sets the initial POST request response handling
-        ///// </summary>
-        ///// <param name="postResponse"></param>
-        ///// <param name="redirectUri"></param>
-        ///// <returns></returns>
-        //public static async Task HandleInitialPostResponse(HttpResponseMessage postResponse)
-        //{
-        //    // check if the POST request was successful
-        //    if (postResponse.IsSuccessStatusCode)
-        //    {
-        //        Console.WriteLine($"\nPOST request was successful: {postResponse.StatusCode}\n");
-
-        //        // handle the response content
-        //        var responseContent = await postResponse.Content.ReadAsStringAsync();
-
-        //        Console.WriteLine($"Response Content:\n{responseContent}");
-        //    }
-        //    else
-        //    {
-        //        Console.WriteLine($"POST request failed with status code: {postResponse.StatusCode}\n");
-        //        Console.WriteLine(postResponse);
-        //    }
-
-        //    var postResponseContent = await postResponse.Content.ReadAsStringAsync();
-        //    Console.WriteLine($"Response Content:{postResponseContent}\n");
-        //}
-
         /// <summary>
-        /// sets the initial POST request
+        /// extracts the pageViewId value from the response and assigns it to pageViewId string
         /// </summary>
-        /// <param name="client"></param>
-        /// <param name="loginUri"></param>
-        /// <param name="tx"></param>
-        /// <param name="p"></param>
-        /// <param name="request_type"></param>
-        /// <param name="signInName"></param>
-        /// <param name="password"></param>
-        /// <returns></returns>
-        public static async Task<HttpResponseMessage> SendInitialPostRequest(HttpClient client, string loginUri, string tx, string p, string request_type, string signInName, string password)
+        /// <param name="responseBody"></param>
+        /// <param name="pageViewId"></param>
+        public static string ExtractPageViewIdValue(string responseBody)
+        {
+            string pageViewIdPrefix = "\"pageViewId\":\"";
+
+            // find the start of the pageViewId value in the response body string
+            int pageViewIdStartIndex = responseBody.IndexOf(pageViewIdPrefix);
+
+            if (pageViewIdStartIndex != -1)
+            {
+                pageViewIdStartIndex += pageViewIdPrefix.Length; // move past the prefix
+
+                // find the quotation mark character at the end of the pageViewId value in the response body string
+                int pageViewIdEndIndex = responseBody.IndexOf('"', pageViewIdStartIndex);
+
+                if (pageViewIdEndIndex != -1)
+                {
+                    // extract the substring containing the pageViewId value
+                    string extractedPageViewId = responseBody.Substring(pageViewIdStartIndex, pageViewIdEndIndex - pageViewIdStartIndex);
+
+
+                    //Console.WriteLine($"\nPAGEVIEWID VALUE = {pageViewId}\n");
+
+                    return extractedPageViewId;
+                }
+                else
+                {
+                    Console.WriteLine("Failed to extract PageViewId value.");
+                }
+            }
+            else
+            {
+                // handle the case where "pageViewId" is not found in the response
+                Console.WriteLine("pageViewId was not found in the response body.");
+
+            }
+            return null;
+        }
+
+        public static async Task<HttpResponseMessage> SendFirstPostRequest(HttpClient client, string loginUri, string tx, string p, string request_type, string signInName, Uri refererUri)
         {
             // set the POST request header
             var initialPostRequestURL = loginUri + $"?tx={tx}&p={p}";
             //Console.Write($"POST request header = {postRequestURL}");
 
+            // create a HttpRequestMessage to set the Referer header
+            var request = new HttpRequestMessage(HttpMethod.Post, initialPostRequestURL);
+            request.Headers.Referrer = refererUri;
+
             // simulate form data for the POST request
             var formContent = new FormUrlEncodedContent(new[]
             {
                     new KeyValuePair<string, string>("request_type", request_type),
-                    new KeyValuePair<string, string>("signInName", signInName),
-                    new KeyValuePair<string, string>("password", password)
+                    new KeyValuePair<string, string>("signInName", signInName)
             });
 
             // modify the Content-Type header of the formContent to include the charset
@@ -314,22 +357,19 @@ namespace DataGifting
                 CharSet = "UTF-8"
             };
 
+            // set the form data in the request
+            request.Content = formContent;
+
             // send a POST request with the query parameters and form data
-            var postResponse = await client.PostAsync(initialPostRequestURL, formContent);
+            var postResponse = await client.SendAsync(request);
 
             // handle the response content
             var stringContent = await postResponse.Content.ReadAsStringAsync();
 
-            return await client.PostAsync(initialPostRequestURL, formContent);
+            return postResponse;
         }
 
-        /// <summary>
-        /// sets the initial POST request response handling
-        /// </summary>
-        /// <param name="postResponse"></param>
-        /// <param name="redirectUri"></param>
-        /// <returns></returns>
-        public static async Task HandleInitialPostResponse(HttpResponseMessage postResponse)
+        public static async Task HandleFirstPostResponse(HttpResponseMessage postResponse)
         {
             // check if the POST request was successful
             if (postResponse.IsSuccessStatusCode)
@@ -346,22 +386,157 @@ namespace DataGifting
             Console.WriteLine($"Response Content:{postResponseContent}\n");
         }
 
+        public static async Task<string> SendSecondGetRequest(HttpClient client, string confirmedUriQueries, Uri referrerUri)
+        {
+            // create a HttpRequestMessage to set the Referer header
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, confirmedUriQueries);
+            request.Headers.Referrer = referrerUri;
+
+            // send the GET request with the modified headers
+            HttpResponseMessage response = await client.SendAsync(request);
+
+            // handle the case when the GET request is successful
+            if (response.IsSuccessStatusCode)
+            {
+                Console.WriteLine("\nconfirmed login GET request was successful");
+
+                // retrieves the response body as a string
+                string responseBody = await response.Content.ReadAsStringAsync();
+                //Console.WriteLine(responseBody);
+
+                return responseBody;
+            }
+            else
+            {
+                // handle the case when the GET request is not successful
+                Console.WriteLine($"confirmed login GET request failed with status code: {response.StatusCode}");
+                string responseContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Response Content:\n{responseContent}");
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// sets the initial POST request
+        /// </summary>
+        /// <param name="client"></param>
+        /// <param name="loginUri"></param>
+        /// <param name="tx"></param>
+        /// <param name="p"></param>
+        /// <param name="request_type"></param>
+        /// <param name="signInName"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
+        public static async Task<HttpResponseMessage> SendSecondPostRequest(HttpClient client, string loginUri, string tx, string p, string request_type, string signInName, string password, string refererUrl)
+        {
+            // set the POST request header
+            var initialPostRequestURL = loginUri + $"?tx={tx}&p={p}";
+            //Console.Write($"POST request header = {postRequestURL}");
+
+            // create a HttpRequestMessage to set the Referer header
+            var request = new HttpRequestMessage(HttpMethod.Post, initialPostRequestURL);
+            request.Headers.Referrer = new Uri(refererUrl);
+
+            // simulate form data for the POST request
+            var formContent = new FormUrlEncodedContent(new[]
+            {
+                    new KeyValuePair<string, string>("request_type", request_type),
+                    new KeyValuePair<string, string>("signInName", signInName),
+                    new KeyValuePair<string, string>("password", password)
+            });
+
+            // modify the Content-Type header of the formContent to include the charset
+            formContent.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded")
+            {
+                CharSet = "UTF-8"
+            };
+
+            // set the form data in the request
+            request.Content = formContent;
+
+            // send a POST request with the query parameters and form data
+            var postResponse = await client.SendAsync(request);
+
+            // handle the response content
+            var stringContent = await postResponse.Content.ReadAsStringAsync();
+
+            return postResponse;
+        }
+
+        /// <summary>
+        /// sets the initial POST request response handling
+        /// </summary>
+        /// <param name="postResponse"></param>
+        /// <returns></returns>
+        public static async Task HandleSecondPostResponse(HttpResponseMessage postResponse)
+        {
+            // check if the POST request was successful
+            if (postResponse.IsSuccessStatusCode)
+            {
+                Console.WriteLine($"\nPOST request was successful: {postResponse.StatusCode}\n");
+            }
+            else
+            {
+                Console.WriteLine($"\nPOST request failed with status code: {postResponse.StatusCode}\n");
+                Console.WriteLine(postResponse);
+            }
+
+            var postResponseContent = await postResponse.Content.ReadAsStringAsync();
+            Console.WriteLine($"Response Content:{postResponseContent}\n");
+        }
+
+        /// <summary>
+        /// sets a GET request to confirm the login is successful
+        /// </summary>
+        /// <param name="client"></param>
+        /// <param name="confirmedUri"></param>
+        /// <param name="rememberMe"></param>
+        /// <param name="csrf"></param>
+        /// <param name="tx"></param>
+        /// <param name="p"></param>
+        /// <param name="diags"></param>
+        /// <returns></returns>
+        public static async Task<Uri> SendThirdGetRequest(HttpClient client, string confirmedUriQueries, string referrerUrl)
+        {
+            // create a HttpRequestMessage to set the Referrer header
+            var request = new HttpRequestMessage(HttpMethod.Get, confirmedUriQueries);
+            request.Headers.Referrer = new Uri(referrerUrl);
+
+            // send the GET request with the modified headers
+            HttpResponseMessage response = await client.SendAsync(request);
+
+            // handle the case when the GET request is successful
+            if (response.IsSuccessStatusCode)
+            {
+                Console.WriteLine("\nconfirmed login GET request was successful");
+                // retrieves the response body as a string
+                string responseBody = await response.Content.ReadAsStringAsync();
+                //Console.WriteLine(responseBody);
+            }
+            else
+            {
+                // handle the case when the GET request is not successful
+                Console.WriteLine($"confirmed login GET request failed with status code: {response.StatusCode}");
+                string responseContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Response Content:\n{responseContent}");
+                return null;
+            }
+            return null;
+        }
+
         /// <summary>
         /// sets the GET request for the Dashboard page
         /// </summary>
         /// <param name="client"></param>
+        /// <param name="dashboardUri"></param>
         /// <param name="redirectUri"></param>
-        /// <param name="uri"></param>
         /// <returns></returns>
-        public static async Task<string> SendDashboardGetRequest(HttpClient client, string dashboardUri, string redirectUri)
+        public static async Task<Uri> SendDashboardGetRequest(HttpClient client, string dashboardUri)
         {
             // send a GET request to retrieve the dashboard page
             HttpResponseMessage initialDashboardResponse = await client.GetAsync(dashboardUri);
 
-            // send a GET request to retrieve the redirect page
-            HttpResponseMessage dashboardResponse = await client.GetAsync(redirectUri);
-
-            if (initialDashboardResponse.IsSuccessStatusCode)
+            if (initialDashboardResponse.StatusCode == HttpStatusCode.Found)
             {
                 Console.WriteLine("\nDashboard GET request was successful\n");
             }
@@ -371,8 +546,15 @@ namespace DataGifting
                 string initialDashboardResponseContent = await initialDashboardResponse.Content.ReadAsStringAsync();
                 Console.WriteLine($"Response Content:\n{initialDashboardResponseContent}");
             }
+            return null;
+        }
 
-            if (dashboardResponse.IsSuccessStatusCode)
+        public static async Task<Uri> SendDashboardRedirectGetRequest(HttpClient client, string dashboardRedirectUri)
+        {
+            // send a GET request to retrieve the redirect page
+            HttpResponseMessage dashboardResponse = await client.GetAsync(dashboardRedirectUri);
+
+            if (dashboardResponse.StatusCode == HttpStatusCode.Found)
             {
                 Console.WriteLine("\nRedirect page GET request was successful\n");
             }
@@ -408,36 +590,36 @@ namespace DataGifting
             return null;
         }
 
-        //public static async Task<HttpResponseMessage> SendAuthenticationPostRequest(HttpClient client, string authenticationUri, string client_id, string redirect_uri, string response_type, string scope, string grant_type)
-        //{
-        //    // set the POST request header
-        //    var authenticationPostRequestURL = authenticationUri;
-        //    //Console.Write($"POST request header = {postRequestURL}");
+        public static async Task<HttpResponseMessage> SendAuthenticationPostRequest(HttpClient client, string authenticationUri, string client_id, string redirect_uri, string response_type, string scope, string grant_type)
+        {
+            // set the POST request header
+            var authenticationPostRequestURL = authenticationUri;
+            //Console.Write($"POST request header = {postRequestURL}");
 
-        //    // simulate form data for the POST request
-        //    var formContent = new FormUrlEncodedContent(new[]
-        //    {
-        //            new KeyValuePair<string, string>("client_id", client_id),
-        //            new KeyValuePair<string, string>("redirect_uri", redirect_uri),
-        //            new KeyValuePair<string, string>("response_type", response_type),
-        //            new KeyValuePair<string, string>("scope", scope),
-        //            new KeyValuePair<string, string>("grant_type", grant_type)
-        //    });
+            // simulate form data for the POST request
+            var formContent = new FormUrlEncodedContent(new[]
+            {
+                    new KeyValuePair<string, string>("client_id", client_id),
+                    new KeyValuePair<string, string>("redirect_uri", redirect_uri),
+                    new KeyValuePair<string, string>("response_type", response_type),
+                    new KeyValuePair<string, string>("scope", scope),
+                    new KeyValuePair<string, string>("grant_type", grant_type)
+            });
 
-        //    // modify the Content-Type header of the formContent to include the charset
-        //    formContent.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded")
-        //    {
-        //        CharSet = "UTF-8"
-        //    };
+            // modify the Content-Type header of the formContent to include the charset
+            formContent.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded")
+            {
+                CharSet = "UTF-8"
+            };
 
-        //    // send a POST request with the query parameters and form data
-        //    var postResponse = await client.PostAsync(authenticationPostRequestURL, formContent);
+            // send a POST request with the query parameters and form data
+            var postResponse = await client.PostAsync(authenticationPostRequestURL, formContent);
 
-        //    // handle the response content
-        //    var stringContent = await postResponse.Content.ReadAsStringAsync();
+            // handle the response content
+            var stringContent = await postResponse.Content.ReadAsStringAsync();
 
-        //    return await client.PostAsync(authenticationPostRequestURL, formContent);
-        //}
+            return await client.PostAsync(authenticationPostRequestURL, formContent);
+        }
 
         public static async Task<string> SendUseridGetRequest(HttpClient client, string useridUri)
         {
@@ -481,7 +663,7 @@ namespace DataGifting
             return null;
         }
 
-            public static async Task<string> SendUsageDataGetRequest(HttpClient client, string usageDataUri)
+        public static async Task<string> SendUsageDataGetRequest(HttpClient client, string usageDataUri)
         {
             // send a GET request to retrieve the usage data information
             HttpResponseMessage usageDataResponse = await client.GetAsync(usageDataUri);

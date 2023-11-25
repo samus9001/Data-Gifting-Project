@@ -22,6 +22,7 @@ namespace DataGifting
             string baseUri = "https://id.ee.co.uk/";
             //string uri = null;
             string confirmedUri = "https://auth.ee.co.uk/e2ea8fbf-98c0-4cf1-a2df-ee9d55ef69c3/B2C_1A_RPBT_SignUpSignIn/api/CombinedSigninAndSignup/confirmed";
+            string signupUri = "https://auth.ee.co.uk/static/content/stage-2/SignUpSignIn/SignUpSignInPage2/unified.html";
             string loginUri = "https://auth.ee.co.uk/e2ea8fbf-98c0-4cf1-a2df-ee9d55ef69c3/B2C_1A_RPBT_SignUpSignIn/SelfAsserted/";
             string dashboardUri = "https://id.ee.co.uk/id/dashboard";
             string dashboardRedirectUri = "https://ee.co.uk/exp/home/";
@@ -36,6 +37,8 @@ namespace DataGifting
             string request_type = "RESPONSE";
             string signInName = "sameer99@outlook.com";
             string password = "D@tagifting2113";
+            string slice = "001-000";
+            string dc = "DB3";
             string rememberMe = "false";
             string pageViewId = null;
             string pageId = "CombinedSigninAndSignup";
@@ -52,10 +55,12 @@ namespace DataGifting
             handler.AllowAutoRedirect = false;
             HttpClient client = new HttpClient(handler); // pass the HttpClientHandler to HttpClient
 
-            LogicMethods.SetDefaultRequestHeaders(client);
+            //LogicMethods.SetDefaultPOSTRequestHeaders(client);
 
             try
             {
+                LogicMethods.SetDefaultGETRequestHeaders(client);
+
                 // store the call for the first GET request
                 Uri firstLocationRedirect = await LogicMethods.SendFirstGetRequest(client, baseUri);
                 Uri secondLocationRedirect = null;
@@ -78,6 +83,10 @@ namespace DataGifting
 
                 //responseBody = await LogicMethods.SendLoginGetRequest(client, uri);
 
+                string clientId = LogicMethods.ExtractClientIdValue(responseBody);
+                
+                string signupUriQueries = $"{signupUri}?clientid={clientId}&slice={slice}&dc={dc}";
+
                 string csrf_token = LogicMethods.ExtractCsrfToken(client, responseBody);
 
                 string tx = LogicMethods.ExtractTxValue(responseBody);
@@ -97,13 +106,21 @@ namespace DataGifting
 
                 Uri thirdLocationHeader = await LogicMethods.SendSecondRedirectGetRequest(client, secondLocationRedirect);
 
+                LogicMethods.RemoveDefaultGETRequestHeaders(client);
+
+                LogicMethods.SetDefaultPOSTRequestHeaders(client);
+
                 HttpResponseMessage firstPostResponse = await LogicMethods.SendFirstPostRequest(client, loginUri, tx, p, request_type, signInName, thirdLocationHeader);
 
                 await LogicMethods.HandleFirstPostResponse(firstPostResponse);
 
+                LogicMethods.RemoveDefaultPOSTRequestHeaders(client);
+
+                LogicMethods.SetDefaultGETRequestHeaders(client);
+
                 responseBody = await LogicMethods.SendSecondGetRequest(client, confirmedUriQueries, thirdLocationHeader);
 
-                csrf_token = LogicMethods.ExtractCsrfToken(client, responseBody);
+                //csrf_token = LogicMethods.ExtractCsrfToken(client, responseBody);
 
                 pageViewId = LogicMethods.ExtractPageViewIdValue(responseBody);
 
@@ -118,11 +135,21 @@ namespace DataGifting
 
                 confirmedUriQueries = $"{confirmedUri}?rememberMe={rememberMe}&csrf_token={csrf_token}&tx={tx}&p={p}&diags={urlEncodedDiags}";
 
+                await LogicMethods.SendThirdGetRequest(client, signupUriQueries, confirmedUriQueries);
+
+                LogicMethods.RemoveDefaultGETRequestHeaders(client);
+
+                LogicMethods.SetDefaultPOSTRequestHeaders(client);
+
                 HttpResponseMessage secondPostResponse = await LogicMethods.SendSecondPostRequest(client, loginUri, tx, p, request_type, signInName, password, confirmedUriQueries);
 
                 await LogicMethods.HandleSecondPostResponse(secondPostResponse);
 
-                await LogicMethods.SendThirdGetRequest(client, confirmedUriQueries, confirmedUriQueries);
+                LogicMethods.RemoveDefaultPOSTRequestHeaders(client);
+
+                LogicMethods.SetDefaultGETRequestHeaders(client);
+
+                await LogicMethods.SendFourthGetRequest(client, confirmedUriQueries, confirmedUriQueries);
 
                 //TODO: additional LocationRedirect method for dashboard pages required by first doing the request POST /v1/identity/authorize/login
 

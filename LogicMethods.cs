@@ -10,13 +10,47 @@ namespace DataGifting
     public class LogicMethods
     {
         /// <summary>
-        /// set the headers
+        /// set the defualt headers for GET requests
         /// </summary>
         /// <param name="client"></param>
-        public static void SetDefaultRequestHeaders(HttpClient client)
+        public static void SetDefaultGETRequestHeaders(HttpClient client)
         {
             client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/119.0");
-            client.DefaultRequestHeaders.Add("Accept", "application/json, text/plain, */*");
+            client.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8");
+            client.DefaultRequestHeaders.Add("Accept-Language", "en-GB,en;q=0.5");
+            client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip, deflate, br");
+            client.DefaultRequestHeaders.Add("DNT", "1");
+            client.DefaultRequestHeaders.Add("Connection", "keep-alive");
+            client.DefaultRequestHeaders.Add("Sec-Fetch-Dest", "empty");
+            client.DefaultRequestHeaders.Add("Sec-Fetch-Mode", "cors");
+            client.DefaultRequestHeaders.Add("Sec-Fetch-Site", "same-origin");
+        }
+
+        /// <summary>
+        /// remove the defualt headers for GET requests
+        /// </summary>
+        /// <param name="client"></param>
+        public static void RemoveDefaultGETRequestHeaders(HttpClient client)
+        {
+            client.DefaultRequestHeaders.Remove("User-Agent");
+            client.DefaultRequestHeaders.Remove("Accept");
+            client.DefaultRequestHeaders.Remove("Accept-Language");
+            client.DefaultRequestHeaders.Remove("Accept-Encoding");
+            client.DefaultRequestHeaders.Remove("DNT");
+            client.DefaultRequestHeaders.Remove("Connection");
+            client.DefaultRequestHeaders.Remove("Sec-Fetch-Dest");
+            client.DefaultRequestHeaders.Remove("Sec-Fetch-Mode");
+            client.DefaultRequestHeaders.Remove("Sec-Fetch-Site");
+        }
+
+        /// <summary>
+        /// set the defualt headers for POST requests
+        /// </summary>
+        /// <param name="client"></param>
+        public static void SetDefaultPOSTRequestHeaders(HttpClient client)
+        {
+            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/119.0");
+            client.DefaultRequestHeaders.Add("Accept", "application/json, text/javascript, */*; q=0.01");
             client.DefaultRequestHeaders.Add("Accept-Language", "en-GB,en;q=0.5");
             client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip, deflate, br");
             client.DefaultRequestHeaders.Add("X-Requested-With", "XMLHttpRequest");
@@ -26,6 +60,25 @@ namespace DataGifting
             client.DefaultRequestHeaders.Add("Sec-Fetch-Dest", "empty");
             client.DefaultRequestHeaders.Add("Sec-Fetch-Mode", "cors");
             client.DefaultRequestHeaders.Add("Sec-Fetch-Site", "same-origin");
+        }
+
+        /// <summary>
+        /// remove the defualt headers for POST requests
+        /// </summary>
+        /// <param name="client"></param>
+        public static void RemoveDefaultPOSTRequestHeaders(HttpClient client)
+        {
+            client.DefaultRequestHeaders.Remove("User-Agent");
+            client.DefaultRequestHeaders.Remove("Accept");
+            client.DefaultRequestHeaders.Remove("Accept-Language");
+            client.DefaultRequestHeaders.Remove("Accept-Encoding");
+            client.DefaultRequestHeaders.Remove("X-Requested-With");
+            client.DefaultRequestHeaders.Remove("Origin");
+            client.DefaultRequestHeaders.Remove("DNT");
+            client.DefaultRequestHeaders.Remove("Connection");
+            client.DefaultRequestHeaders.Remove("Sec-Fetch-Dest");
+            client.DefaultRequestHeaders.Remove("Sec-Fetch-Mode");
+            client.DefaultRequestHeaders.Remove("Sec-Fetch-Site");
         }
 
         /// <summary>
@@ -204,6 +257,49 @@ namespace DataGifting
         //}
 
         /// <summary>
+        /// extracts the clientId value from the response and assigns it to clientId string
+        /// </summary>
+        /// <param name="responseBody"></param>
+        /// <returns></returns>
+        public static string ExtractClientIdValue(string responseBody)
+        {
+            string clientIdPrefix = "clientid=";
+
+            // find the start of the clientId value in the response body string
+            int clientIdStartIndex = responseBody.IndexOf(clientIdPrefix);
+
+            if (clientIdStartIndex != -1)
+            {
+                clientIdStartIndex += clientIdPrefix.Length; // move past the prefix
+
+                // find the quotation mark character at the end of the clientId value in the response body string
+                int clientIdEndIndex = responseBody.IndexOf('"', clientIdStartIndex);
+
+                if (clientIdEndIndex != -1)
+                {
+                    // extract the substring containing the clientId value
+                    string extractedClientId = responseBody.Substring(clientIdStartIndex, clientIdEndIndex - clientIdStartIndex);
+
+
+                    //Console.WriteLine($"\nCLIENTID VALUE = {extractedClientId}\n");
+
+                    return extractedClientId;
+                }
+                else
+                {
+                    Console.WriteLine("Failed to extract ClientId value.");
+                }
+            }
+            else
+            {
+                // handle the case where "clientId" is not found in the response
+                Console.WriteLine("clientId was not found in the response body.");
+
+            }
+            return null;
+        }
+
+        /// <summary>
         /// extracts the CSRF token value from the response and assigns it to csrf_token
         /// </summary>
         /// <param name="client"></param>
@@ -316,7 +412,7 @@ namespace DataGifting
                     string extractedPageViewId = responseBody.Substring(pageViewIdStartIndex, pageViewIdEndIndex - pageViewIdStartIndex);
 
 
-                    //Console.WriteLine($"\nPAGEVIEWID VALUE = {pageViewId}\n");
+                    //Console.WriteLine($"\nPAGEVIEWID VALUE = {extractedPageViewId}\n");
 
                     return extractedPageViewId;
                 }
@@ -416,6 +512,34 @@ namespace DataGifting
             }
         }
 
+        public static async Task<Uri> SendThirdGetRequest(HttpClient client, string signupUriQueries, string referrerUrl)
+        {
+            // create a HttpRequestMessage to set the Referrer header
+            var request = new HttpRequestMessage(HttpMethod.Get, signupUriQueries);
+            request.Headers.Referrer = new Uri(referrerUrl);
+
+            // send the GET request with the modified headers
+            HttpResponseMessage response = await client.SendAsync(request);
+
+            // handle the case when the GET request is successful
+            if (response.IsSuccessStatusCode)
+            {
+                Console.WriteLine("\nsignup page GET request was successful");
+                // retrieves the response body as a string
+                string responseBody = await response.Content.ReadAsStringAsync();
+                //Console.WriteLine(responseBody);
+            }
+            else
+            {
+                // handle the case when the GET request is not successful
+                Console.WriteLine($"confirmed login GET request failed with status code: {response.StatusCode}");
+                string responseContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Response Content:\n{responseContent}");
+                return null;
+            }
+            return null;
+        }
+
         /// <summary>
         /// sets the initial POST request
         /// </summary>
@@ -496,7 +620,7 @@ namespace DataGifting
         /// <param name="p"></param>
         /// <param name="diags"></param>
         /// <returns></returns>
-        public static async Task<Uri> SendThirdGetRequest(HttpClient client, string confirmedUriQueries, string referrerUrl)
+        public static async Task<Uri> SendFourthGetRequest(HttpClient client, string confirmedUriQueries, string referrerUrl)
         {
             // create a HttpRequestMessage to set the Referrer header
             var request = new HttpRequestMessage(HttpMethod.Get, confirmedUriQueries);

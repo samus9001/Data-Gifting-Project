@@ -10,10 +10,10 @@ namespace DataGifting
     public class LogicMethods
     {
         /// <summary>
-        /// set the defualt headers for GET requests
+        /// set the request headers for the first GET request
         /// </summary>
         /// <param name="client"></param>
-        public static void SetDefaultGETRequestHeaders(HttpClient client)
+        public static void SetFirstGETRequestHeaders(HttpClient client)
         {
             client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/119.0");
             client.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8");
@@ -21,64 +21,12 @@ namespace DataGifting
             client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip, deflate, br");
             client.DefaultRequestHeaders.Add("DNT", "1");
             client.DefaultRequestHeaders.Add("Connection", "keep-alive");
-            client.DefaultRequestHeaders.Add("Sec-Fetch-Dest", "empty");
-            client.DefaultRequestHeaders.Add("Sec-Fetch-Mode", "cors");
-            client.DefaultRequestHeaders.Add("Sec-Fetch-Site", "same-origin");
-        }
-
-        /// <summary>
-        /// remove the defualt headers for GET requests
-        /// </summary>
-        /// <param name="client"></param>
-        public static void RemoveDefaultGETRequestHeaders(HttpClient client)
-        {
-            client.DefaultRequestHeaders.Remove("User-Agent");
-            client.DefaultRequestHeaders.Remove("Accept");
-            client.DefaultRequestHeaders.Remove("Accept-Language");
-            client.DefaultRequestHeaders.Remove("Accept-Encoding");
-            client.DefaultRequestHeaders.Remove("DNT");
-            client.DefaultRequestHeaders.Remove("Connection");
-            client.DefaultRequestHeaders.Remove("Sec-Fetch-Dest");
-            client.DefaultRequestHeaders.Remove("Sec-Fetch-Mode");
-            client.DefaultRequestHeaders.Remove("Sec-Fetch-Site");
-        }
-
-        /// <summary>
-        /// set the defualt headers for POST requests
-        /// </summary>
-        /// <param name="client"></param>
-        public static void SetDefaultPOSTRequestHeaders(HttpClient client)
-        {
-            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/119.0");
-            client.DefaultRequestHeaders.Add("Accept", "application/json, text/javascript, */*; q=0.01");
-            client.DefaultRequestHeaders.Add("Accept-Language", "en-GB,en;q=0.5");
-            client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip, deflate, br");
-            client.DefaultRequestHeaders.Add("X-Requested-With", "XMLHttpRequest");
-            client.DefaultRequestHeaders.Add("Origin", "https://auth.ee.co.uk");
-            client.DefaultRequestHeaders.Add("DNT", "1");
-            client.DefaultRequestHeaders.Add("Connection", "keep-alive");
-            client.DefaultRequestHeaders.Add("Sec-Fetch-Dest", "empty");
-            client.DefaultRequestHeaders.Add("Sec-Fetch-Mode", "cors");
-            client.DefaultRequestHeaders.Add("Sec-Fetch-Site", "same-origin");
-        }
-
-        /// <summary>
-        /// remove the defualt headers for POST requests
-        /// </summary>
-        /// <param name="client"></param>
-        public static void RemoveDefaultPOSTRequestHeaders(HttpClient client)
-        {
-            client.DefaultRequestHeaders.Remove("User-Agent");
-            client.DefaultRequestHeaders.Remove("Accept");
-            client.DefaultRequestHeaders.Remove("Accept-Language");
-            client.DefaultRequestHeaders.Remove("Accept-Encoding");
-            client.DefaultRequestHeaders.Remove("X-Requested-With");
-            client.DefaultRequestHeaders.Remove("Origin");
-            client.DefaultRequestHeaders.Remove("DNT");
-            client.DefaultRequestHeaders.Remove("Connection");
-            client.DefaultRequestHeaders.Remove("Sec-Fetch-Dest");
-            client.DefaultRequestHeaders.Remove("Sec-Fetch-Mode");
-            client.DefaultRequestHeaders.Remove("Sec-Fetch-Site");
+            client.DefaultRequestHeaders.Add("Sec-Fetch-Dest", "document");
+            client.DefaultRequestHeaders.Add("Sec-Fetch-Mode", "navigate");
+            client.DefaultRequestHeaders.Add("Sec-Fetch-Site", "none");
+            client.DefaultRequestHeaders.Add("Upgrade-Insecure-Requests", "1");
+            client.DefaultRequestHeaders.Add("Sec-Fetch-User", "?1");
+            client.DefaultRequestHeaders.Add("Sec-GPC", "1");
         }
 
         /// <summary>
@@ -114,6 +62,26 @@ namespace DataGifting
             Console.WriteLine($"\nfirst Location header = {firstLocationHeader}");
 
             return firstLocationHeader;
+        }
+
+        /// <summary>
+        /// set the request headers for the first redirect GET request
+        /// </summary>
+        /// <param name="client"></param>
+        public static void SetFirstRedirectGETRequestHeaders(HttpClient client)
+        {
+            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/119.0");
+            client.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8");
+            client.DefaultRequestHeaders.Add("Accept-Language", "en-GB,en;q=0.5");
+            client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip, deflate, br");
+            client.DefaultRequestHeaders.Add("DNT", "1");
+            client.DefaultRequestHeaders.Add("Connection", "keep-alive");
+            client.DefaultRequestHeaders.Add("Sec-Fetch-Dest", "document");
+            client.DefaultRequestHeaders.Add("Sec-Fetch-Mode", "navigate");
+            client.DefaultRequestHeaders.Add("Sec-Fetch-Site", "none");
+            client.DefaultRequestHeaders.Add("Upgrade-Insecure-Requests", "1");
+            client.DefaultRequestHeaders.Add("Sec-Fetch-User", "?1");
+            client.DefaultRequestHeaders.Add("Sec-GPC", "1");
         }
 
         /// <summary>
@@ -156,6 +124,26 @@ namespace DataGifting
         }
 
         /// <summary>
+        /// set the request headers for the second redirect GET request
+        /// </summary>
+        /// <param name="client"></param>
+        public static void SetSecondRedirectGETRequestHeaders(HttpClient client)
+        {
+            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/119.0");
+            client.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8");
+            client.DefaultRequestHeaders.Add("Accept-Language", "en-GB,en;q=0.5");
+            client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip, deflate, br");
+            client.DefaultRequestHeaders.Add("DNT", "1");
+            client.DefaultRequestHeaders.Add("Connection", "keep-alive");
+            client.DefaultRequestHeaders.Add("Sec-Fetch-Dest", "document");
+            client.DefaultRequestHeaders.Add("Sec-Fetch-Mode", "navigate");
+            client.DefaultRequestHeaders.Add("Sec-Fetch-Site", "none");
+            client.DefaultRequestHeaders.Add("Upgrade-Insecure-Requests", "1");
+            client.DefaultRequestHeaders.Add("Sec-Fetch-User", "?1");
+            client.DefaultRequestHeaders.Add("Sec-GPC", "1");
+        }
+
+        /// <summary>
         /// sets the second redirect GET request
         /// </summary>
         /// <param name="client"></param>
@@ -192,6 +180,26 @@ namespace DataGifting
         }
 
         /// <summary>
+        /// set the request headers for the login GET request
+        /// </summary>
+        /// <param name="client"></param>
+        public static void SetLoginGETRequestHeaders(HttpClient client)
+        {
+            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/119.0");
+            client.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8");
+            client.DefaultRequestHeaders.Add("Accept-Language", "en-GB,en;q=0.5");
+            client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip, deflate, br");
+            client.DefaultRequestHeaders.Add("DNT", "1");
+            client.DefaultRequestHeaders.Add("Connection", "keep-alive");
+            client.DefaultRequestHeaders.Add("Sec-Fetch-Dest", "document");
+            client.DefaultRequestHeaders.Add("Sec-Fetch-Mode", "navigate");
+            client.DefaultRequestHeaders.Add("Sec-Fetch-Site", "none");
+            client.DefaultRequestHeaders.Add("Upgrade-Insecure-Requests", "1");
+            client.DefaultRequestHeaders.Add("Sec-Fetch-User", "?1");
+            client.DefaultRequestHeaders.Add("Sec-GPC", "1");
+        }
+
+        /// <summary>
         /// sets the login page GET request
         /// </summary>
         /// <param name="client"></param>
@@ -223,38 +231,6 @@ namespace DataGifting
             }
             return null;
         }
-
-        /// <summary>
-        /// sets the login page GET request
-        /// </summary>
-        /// <param name="client"></param>
-        /// <param name="uri"></param>
-        /// <param name="responseBody"></param>
-        /// <returns></returns>
-        //public static async Task<string> SendLoginGetRequest(HttpClient client, string uri)
-        //{
-        //    // send a GET request to retrieve the login page
-        //    HttpResponseMessage response = await client.GetAsync(uri);
-
-        //    if (response.IsSuccessStatusCode)
-        //    {
-        //        //Console.WriteLine($"login page URL = {responseBody}");
-        //        Console.WriteLine("login page GET request was successful\n");
-
-        //        // retrieves the response body as a string
-        //        string responseBody = await client.GetStringAsync(uri);
-        //        //Console.WriteLine($"RESPONSE BODY: {responseBody}\n");
-
-        //        return responseBody;
-        //    }
-        //    else
-        //    {
-        //        Console.WriteLine($"\nlogin page GET request failed with status code: {response.StatusCode}");
-        //        string responseContent = await response.Content.ReadAsStringAsync();
-        //        Console.WriteLine($"Response Content:\n{responseContent}");
-        //    }
-        //    return null;
-        //}
 
         /// <summary>
         /// extracts the clientId value from the response and assigns it to clientId string
@@ -430,6 +406,58 @@ namespace DataGifting
             return null;
         }
 
+        /// <summary>
+        /// set the request headers for the first static page GET request
+        /// </summary>
+        /// <param name="client"></param>
+        public static void SetFirstStaticPageGETRequestHeaders(HttpClient client)
+        {
+            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/119.0");
+            client.DefaultRequestHeaders.Add("Accept", "*/*");
+            client.DefaultRequestHeaders.Add("Accept-Language", "en-GB,en;q=0.5");
+            client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip, deflate, br");
+            client.DefaultRequestHeaders.Add("DNT", "1");
+            client.DefaultRequestHeaders.Add("Connection", "keep-alive");
+            client.DefaultRequestHeaders.Add("Sec-Fetch-Dest", "empty");
+            client.DefaultRequestHeaders.Add("Sec-Fetch-Mode", "cors");
+            client.DefaultRequestHeaders.Add("Sec-Fetch-Site", "same-origin");
+        }
+
+        /// <summary>
+        /// sets the first static page GET request
+        /// </summary>
+        /// <param name="client"></param>
+        /// <param name="signupUriQueries"></param>
+        /// <param name="thirdLocationRedirect"></param>
+        /// <returns></returns>
+        public static async Task<Uri> SendFirstStaticPageGetRequest(HttpClient client, string signupUriQueries, Uri thirdLocationRedirect)
+        {
+            // create a HttpRequestMessage to set the Referrer header
+            var request = new HttpRequestMessage(HttpMethod.Get, signupUriQueries);
+            request.Headers.Referrer = thirdLocationRedirect;
+
+            // send the GET request with the modified headers
+            HttpResponseMessage response = await client.SendAsync(request);
+
+            // handle the case when the GET request is successful
+            if (response.IsSuccessStatusCode)
+            {
+                Console.WriteLine("\nsignup page GET request was successful");
+                // retrieves the response body as a string
+                string responseBody = await response.Content.ReadAsStringAsync();
+                //Console.WriteLine(responseBody);
+            }
+            else
+            {
+                // handle the case when the GET request is not successful
+                Console.WriteLine($"confirmed login GET request failed with status code: {response.StatusCode}");
+                string responseContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Response Content:\n{responseContent}");
+                return null;
+            }
+            return null;
+        }
+
         public static async Task<HttpResponseMessage> SendFirstPostRequest(HttpClient client, string loginUri, string tx, string p, string request_type, string signInName, Uri refererUri)
         {
             // set the POST request header
@@ -482,6 +510,22 @@ namespace DataGifting
             Console.WriteLine($"Response Content:{postResponseContent}\n");
         }
 
+        public static void SetSecondGETRequestHeaders(HttpClient client)
+        {
+            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/119.0");
+            client.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8");
+            client.DefaultRequestHeaders.Add("Accept-Language", "en-GB,en;q=0.5");
+            client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip, deflate, br");
+            client.DefaultRequestHeaders.Add("DNT", "1");
+            client.DefaultRequestHeaders.Add("Connection", "keep-alive");
+            client.DefaultRequestHeaders.Add("Sec-Fetch-Dest", "document");
+            client.DefaultRequestHeaders.Add("Sec-Fetch-Mode", "navigate");
+            client.DefaultRequestHeaders.Add("Sec-Fetch-Site", "same-origin");
+            client.DefaultRequestHeaders.Add("Upgrade-Insecure-Requests", "1");
+            client.DefaultRequestHeaders.Add("Sec-Fetch-User", "?1");
+            client.DefaultRequestHeaders.Add("Sec-GPC", "1");
+        }
+
         public static async Task<string> SendSecondGetRequest(HttpClient client, string confirmedUriQueries, Uri referrerUri)
         {
             // create a HttpRequestMessage to set the Referer header
@@ -512,7 +556,28 @@ namespace DataGifting
             }
         }
 
-        public static async Task<Uri> SendThirdGetRequest(HttpClient client, string signupUriQueries, string referrerUrl)
+        public static void SetSecondStaticPageGETRequestHeaders(HttpClient client)
+        {
+            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/119.0");
+            client.DefaultRequestHeaders.Add("Accept", "*/*");
+            client.DefaultRequestHeaders.Add("Accept-Language", "en-GB,en;q=0.5");
+            client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip, deflate, br");
+            client.DefaultRequestHeaders.Add("DNT", "1");
+            client.DefaultRequestHeaders.Add("Connection", "keep-alive");
+            client.DefaultRequestHeaders.Add("Sec-Fetch-Dest", "empty");
+            client.DefaultRequestHeaders.Add("Sec-Fetch-Mode", "cors");
+            client.DefaultRequestHeaders.Add("Sec-Fetch-Site", "same-origin");
+            client.DefaultRequestHeaders.Add("Sec-GPC", "1");
+        }
+
+        /// <summary>
+        /// sets the second static page GET request
+        /// </summary>
+        /// <param name="client"></param>
+        /// <param name="signupUriQueries"></param>
+        /// <param name="referrerUrl"></param>
+        /// <returns></returns>
+        public static async Task<Uri> SendSecondStaticPageGetRequest(HttpClient client, string signupUriQueries, string referrerUrl)
         {
             // create a HttpRequestMessage to set the Referrer header
             var request = new HttpRequestMessage(HttpMethod.Get, signupUriQueries);
@@ -854,6 +919,81 @@ namespace DataGifting
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// set the defualt headers for GET requests
+        /// </summary>
+        /// <param name="client"></param>
+        public static void SetDefaultGETRequestHeaders(HttpClient client)
+        {
+            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/119.0");
+            client.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8");
+            client.DefaultRequestHeaders.Add("Accept-Language", "en-GB,en;q=0.5");
+            client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip, deflate, br");
+            client.DefaultRequestHeaders.Add("DNT", "1");
+            client.DefaultRequestHeaders.Add("Connection", "keep-alive");
+            client.DefaultRequestHeaders.Add("Sec-Fetch-Dest", "empty");
+            client.DefaultRequestHeaders.Add("Sec-Fetch-Mode", "cors");
+            client.DefaultRequestHeaders.Add("Sec-Fetch-Site", "same-origin");
+        }
+
+        /// <summary>
+        /// set the defualt headers for POST requests
+        /// </summary>
+        /// <param name="client"></param>
+        public static void SetDefaultPOSTRequestHeaders(HttpClient client)
+        {
+            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/119.0");
+            client.DefaultRequestHeaders.Add("Accept", "application/json, text/javascript, */*; q=0.01");
+            client.DefaultRequestHeaders.Add("Accept-Language", "en-GB,en;q=0.5");
+            client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip, deflate, br");
+            client.DefaultRequestHeaders.Add("X-Requested-With", "XMLHttpRequest");
+            client.DefaultRequestHeaders.Add("Origin", "https://auth.ee.co.uk");
+            client.DefaultRequestHeaders.Add("DNT", "1");
+            client.DefaultRequestHeaders.Add("Connection", "keep-alive");
+            client.DefaultRequestHeaders.Add("Sec-Fetch-Dest", "empty");
+            client.DefaultRequestHeaders.Add("Sec-Fetch-Mode", "cors");
+            client.DefaultRequestHeaders.Add("Sec-Fetch-Site", "same-origin");
+        }
+
+        /// <summary>
+        /// remove the defualt headers for GET requests
+        /// </summary>
+        /// <param name="client"></param>
+        public static void RemoveGETRequestHeaders(HttpClient client)
+        {
+            client.DefaultRequestHeaders.Remove("User-Agent");
+            client.DefaultRequestHeaders.Remove("Accept");
+            client.DefaultRequestHeaders.Remove("Accept-Language");
+            client.DefaultRequestHeaders.Remove("Accept-Encoding");
+            client.DefaultRequestHeaders.Remove("DNT");
+            client.DefaultRequestHeaders.Remove("Connection");
+            client.DefaultRequestHeaders.Remove("Sec-Fetch-Dest");
+            client.DefaultRequestHeaders.Remove("Sec-Fetch-Mode");
+            client.DefaultRequestHeaders.Remove("Sec-Fetch-Site");
+            client.DefaultRequestHeaders.Remove("Upgrade-Insecure-Requests");
+            client.DefaultRequestHeaders.Remove("Sec-Fetch-User");
+            client.DefaultRequestHeaders.Remove("Sec-GPC");
+        }
+
+        /// <summary>
+        /// remove the defualt headers for POST requests
+        /// </summary>
+        /// <param name="client"></param>
+        public static void RemovePOSTRequestHeaders(HttpClient client)
+        {
+            client.DefaultRequestHeaders.Remove("User-Agent");
+            client.DefaultRequestHeaders.Remove("Accept");
+            client.DefaultRequestHeaders.Remove("Accept-Language");
+            client.DefaultRequestHeaders.Remove("Accept-Encoding");
+            client.DefaultRequestHeaders.Remove("X-Requested-With");
+            client.DefaultRequestHeaders.Remove("Origin");
+            client.DefaultRequestHeaders.Remove("DNT");
+            client.DefaultRequestHeaders.Remove("Connection");
+            client.DefaultRequestHeaders.Remove("Sec-Fetch-Dest");
+            client.DefaultRequestHeaders.Remove("Sec-Fetch-Mode");
+            client.DefaultRequestHeaders.Remove("Sec-Fetch-Site");
         }
     }
 }

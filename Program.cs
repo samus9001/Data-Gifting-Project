@@ -11,19 +11,14 @@ namespace DataGifting
 {
     internal class Program
     {
-        //const string MB_UNITS = "MB";
-        //const string GB_UNITS = "GB";
-        //SIM sim1 = new SIM();
-        //sim1.PhoneNumber = "07725917672";
-        //sim1.SerialNumber = "361308296409";
-
         static async Task Main(string[] args)
         {
             string baseUri = "https://id.ee.co.uk/";
             //string uri = null;
             string confirmedUri = "https://auth.ee.co.uk/e2ea8fbf-98c0-4cf1-a2df-ee9d55ef69c3/B2C_1A_RPBT_SignUpSignIn/api/CombinedSigninAndSignup/confirmed";
-            string signupUri = "https://auth.ee.co.uk/static/content/stage-2/SignUpSignIn/SignUpSignInPage2/unified.html";
-            string loginUri = "https://auth.ee.co.uk/e2ea8fbf-98c0-4cf1-a2df-ee9d55ef69c3/B2C_1A_RPBT_SignUpSignIn/SelfAsserted/";
+            string firstSignUpUri = "https://auth.ee.co.uk/static/content/stage-2/SignUpSignIn/SignUpSignInPage1/unified.html";
+            string secondSignUpUri = "https://auth.ee.co.uk/static/content/stage-2/SignUpSignIn/SignUpSignInPage2/unified.html";
+            string loginUri = "https://auth.ee.co.uk/e2ea8fbf-98c0-4cf1-a2df-ee9d55ef69c3/B2C_1A_RPBT_SignUpSignIn/SelfAsserted";
             string dashboardUri = "https://id.ee.co.uk/id/dashboard";
             string dashboardRedirectUri = "https://ee.co.uk/exp/home/";
             string openidUri = "https://auth.ee.co.uk/e2ea8fbf-98c0-4cf1-a2df-ee9d55ef69c3/b2c_1a_rpbt_signupsignin/v2.0/.well-known/openid-configuration";
@@ -35,8 +30,8 @@ namespace DataGifting
 
             string p = "B2C_1A_RPBT_SignUpSignIn";
             string request_type = "RESPONSE";
-            string signInName = "sameer99@outlook.com";
-            string password = "D@tagifting2113";
+            string signInName = "";
+            string password = "";
             string slice = "001-000";
             string dc = "DB3";
             string rememberMe = "false";
@@ -44,8 +39,6 @@ namespace DataGifting
             string pageId = "CombinedSigninAndSignup";
             string trace = "[]";
             string diags = "";
-            //var sim = new SIM("361308296409");]
-            //var phone = new SIM("07725917672");
 
             // create an instance of HttpClientHandler with cookie support
             CookieContainer cookies = new CookieContainer();
@@ -59,35 +52,52 @@ namespace DataGifting
 
             try
             {
-                LogicMethods.SetDefaultGETRequestHeaders(client);
+                LogicMethods.SetFirstGETRequestHeaders(client);
 
                 // store the call for the first GET request
                 Uri firstLocationRedirect = await LogicMethods.SendFirstGetRequest(client, baseUri);
                 Uri secondLocationRedirect = null;
                 Uri thirdLocationRedirect = null;
 
+                LogicMethods.RemoveGETRequestHeaders(client);
+
                 if (firstLocationRedirect != null)
                 {
+                    LogicMethods.SetFirstRedirectGETRequestHeaders(client);
+
                     // store the call for the first redirect GET request
                     secondLocationRedirect = await LogicMethods.SendFirstRedirectGetRequest(client, baseUri, firstLocationRedirect);
+
+                    LogicMethods.RemoveGETRequestHeaders(client);
                 }
 
                 if (secondLocationRedirect != null)
                 {
+                    LogicMethods.SetSecondRedirectGETRequestHeaders(client);
+
+                    // store the call for the second redirect GET request
                     thirdLocationRedirect = await LogicMethods.SendSecondRedirectGetRequest(client, secondLocationRedirect);
+
+                    LogicMethods.RemoveGETRequestHeaders(client);
                 }
 
+                LogicMethods.SetLoginGETRequestHeaders(client);
+
                 string responseBody = await LogicMethods.SendLoginGetRequest(client, thirdLocationRedirect);
+
+                LogicMethods.RemoveGETRequestHeaders(client);
 
                 //uri = await LogicMethods.SendInitialGetRequest(client, baseUri, uri);
 
                 //responseBody = await LogicMethods.SendLoginGetRequest(client, uri);
 
                 string clientId = LogicMethods.ExtractClientIdValue(responseBody);
-                
-                string signupUriQueries = $"{signupUri}?clientid={clientId}&slice={slice}&dc={dc}";
+
+                string signupUriQueries = $"{firstSignUpUri}?clientid={clientId}&slice={slice}&dc={dc}";
 
                 string csrf_token = LogicMethods.ExtractCsrfToken(client, responseBody);
+
+                //Console.WriteLine($"\n{csrf_token}\n");
 
                 string tx = LogicMethods.ExtractTxValue(responseBody);
 
@@ -104,9 +114,13 @@ namespace DataGifting
 
                 string confirmedUriQueries = $"{confirmedUri}?rememberMe={rememberMe}&csrf_token={csrf_token}&tx={tx}&p={p}&diags={urlEncodedDiags}";
 
+                LogicMethods.SetFirstStaticPageGETRequestHeaders(client);
+
+                await LogicMethods.SendFirstStaticPageGetRequest(client, signupUriQueries, thirdLocationRedirect);
+
                 Uri thirdLocationHeader = await LogicMethods.SendSecondRedirectGetRequest(client, secondLocationRedirect);
 
-                LogicMethods.RemoveDefaultGETRequestHeaders(client);
+                LogicMethods.RemoveGETRequestHeaders(client);
 
                 LogicMethods.SetDefaultPOSTRequestHeaders(client);
 
@@ -114,13 +128,17 @@ namespace DataGifting
 
                 await LogicMethods.HandleFirstPostResponse(firstPostResponse);
 
-                LogicMethods.RemoveDefaultPOSTRequestHeaders(client);
+                LogicMethods.RemovePOSTRequestHeaders(client);
 
-                LogicMethods.SetDefaultGETRequestHeaders(client);
+                LogicMethods.SetSecondGETRequestHeaders(client);
 
                 responseBody = await LogicMethods.SendSecondGetRequest(client, confirmedUriQueries, thirdLocationHeader);
 
-                //csrf_token = LogicMethods.ExtractCsrfToken(client, responseBody);
+                LogicMethods.RemoveGETRequestHeaders(client);
+
+                csrf_token = LogicMethods.ExtractCsrfToken(client, responseBody);
+
+                //Console.WriteLine($"\n{csrf_token}\n");
 
                 pageViewId = LogicMethods.ExtractPageViewIdValue(responseBody);
 
@@ -133,11 +151,15 @@ namespace DataGifting
 
                 //Console.WriteLine(urlEncodedDiags);
 
+                signupUriQueries = $"{secondSignUpUri}?clientid={clientId}&slice={slice}&dc={dc}";
+
                 confirmedUriQueries = $"{confirmedUri}?rememberMe={rememberMe}&csrf_token={csrf_token}&tx={tx}&p={p}&diags={urlEncodedDiags}";
 
-                await LogicMethods.SendThirdGetRequest(client, signupUriQueries, confirmedUriQueries);
+                LogicMethods.SetSecondStaticPageGETRequestHeaders(client);
 
-                LogicMethods.RemoveDefaultGETRequestHeaders(client);
+                await LogicMethods.SendSecondStaticPageGetRequest(client, signupUriQueries, confirmedUriQueries);
+
+                LogicMethods.RemoveGETRequestHeaders(client);
 
                 LogicMethods.SetDefaultPOSTRequestHeaders(client);
 
@@ -145,13 +167,11 @@ namespace DataGifting
 
                 await LogicMethods.HandleSecondPostResponse(secondPostResponse);
 
-                LogicMethods.RemoveDefaultPOSTRequestHeaders(client);
+                LogicMethods.RemovePOSTRequestHeaders(client);
 
                 LogicMethods.SetDefaultGETRequestHeaders(client);
 
                 await LogicMethods.SendFourthGetRequest(client, confirmedUriQueries, confirmedUriQueries);
-
-                //TODO: additional LocationRedirect method for dashboard pages required by first doing the request POST /v1/identity/authorize/login
 
                 await LogicMethods.SendDashboardGetRequest(client, dashboardUri);
 

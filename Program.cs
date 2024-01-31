@@ -6,6 +6,10 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Xml.Linq;
 using System.Web;
+using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium;
+using System.Security.Cryptography.X509Certificates;
+using OpenQA.Selenium.Support.UI;
 
 namespace DataGifting
 {
@@ -13,6 +17,75 @@ namespace DataGifting
     {
         static async Task Main(string[] args)
         {
+            var driver = new ChromeDriver();
+            driver.Navigate().GoToUrl("https://id.ee.co.uk");
+
+            // Set implicit wait to 10 seconds
+            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
+
+            try
+            {
+                WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromMinutes(1));
+
+                Func<IWebDriver, bool> waitForElement = new Func<IWebDriver, bool>((IWebDriver web) =>
+                {
+                    // Find the input element
+                    IWebElement inputElement = web.FindElement(By.XPath("//input"));
+
+                    // Return true to indicate that the condition is met
+                    return true;
+                });
+
+                // Wait until the element is present or timeout occurs
+                wait.Until(waitForElement);
+
+                // Continue with your code after the element is present
+                Console.WriteLine("Element is present, continue with further actions");
+
+                // Find the input elements
+                var elements = driver.FindElements(By.XPath("//input"));
+
+                // Input the provided keys for the first input element
+                elements[1].SendKeys("sameer99@outlook.com");
+
+                // Find the button element then click the button
+                driver.FindElement(By.XPath("//button")).Click();
+
+                wait.Until(waitForElement);
+
+                // Continue with your code after the element is present
+                Console.WriteLine("Element is present, continue with further actions");
+
+                // Find the input elements
+                elements = driver.FindElements(By.XPath("//input"));
+
+                // Input the provided keys for the third input element
+                elements[2].SendKeys("D@tagifting2113");
+
+                // Find the button element then click the button
+                driver.FindElement(By.XPath("//button")).Click();
+
+                // Find the button elements
+                elements = driver.FindElements(By.XPath("//button"));
+
+                elements[0].Click();
+
+
+                // Find the button element then click the button
+                driver.FindElement(By.XPath("//button")).Click();
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+            }
+            finally
+            {
+                driver.Quit();
+            }
+
+            
+            
             string baseUri = "https://id.ee.co.uk/";
             //string uri = null;
             string confirmedUri = "https://auth.ee.co.uk/e2ea8fbf-98c0-4cf1-a2df-ee9d55ef69c3/B2C_1A_RPBT_SignUpSignIn/api/CombinedSigninAndSignup/confirmed";

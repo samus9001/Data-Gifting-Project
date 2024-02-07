@@ -17,62 +17,139 @@ namespace DataGifting
     {
         static async Task Main(string[] args)
         {
-            var driver = new ChromeDriver();
-            driver.Navigate().GoToUrl("https://id.ee.co.uk");
+            //string baseUri = "https://id.ee.co.uk/";
+            ////string uri = null;
+            //string confirmedUri = "https://auth.ee.co.uk/e2ea8fbf-98c0-4cf1-a2df-ee9d55ef69c3/B2C_1A_RPBT_SignUpSignIn/api/CombinedSigninAndSignup/confirmed";
+            //string firstSignUpUri = "https://auth.ee.co.uk/static/content/stage-2/SignUpSignIn/SignUpSignInPage1/unified.html";
+            //string secondSignUpUri = "https://auth.ee.co.uk/static/content/stage-2/SignUpSignIn/SignUpSignInPage2/unified.html";
+            //string loginUri = "https://auth.ee.co.uk/e2ea8fbf-98c0-4cf1-a2df-ee9d55ef69c3/B2C_1A_RPBT_SignUpSignIn/SelfAsserted";
+            //string dashboardUri = "https://id.ee.co.uk/id/dashboard";
+            //string dashboardRedirectUri = "https://ee.co.uk/exp/home/";
+            //string openidUri = "https://auth.ee.co.uk/e2ea8fbf-98c0-4cf1-a2df-ee9d55ef69c3/b2c_1a_rpbt_signupsignin/v2.0/.well-known/openid-configuration";
+            //string useridUri = "https://auth.ee.co.uk/common/v1/customer-identity-profiles?identity-id=2dcfe49c-81a0-4581-8662-7735017ea90b";
+            //string identityUri = "https://api.ee.co.uk/digital/v1/person-identities/self";
+            //string usageDataUri = "https://ee.co.uk/plans-subscriptions/mobile/usage-since-last-bill";
+            //string userDataUri = "https://ee.co.uk/app/api/basic";
+            //string dataGiftUri = "https://ee.co.uk/plans-subscriptions/mobile/data-gifting";
+
+            //string p = "B2C_1A_RPBT_SignUpSignIn";
+            //string request_type = "RESPONSE";
+            //string signInName = "";
+            //string password = "";
+            //string slice = "001-000";
+            //string dc = "DB3";
+            //string rememberMe = "false";
+            //string pageViewId = null;
+            //string pageId = "CombinedSigninAndSignup";
+            //string trace = "[]";
+            //string diags = "";
+
+
+
+
+            // instantiate a driver instance to control Chrome in headless mode
+            var chromeOptions = new ChromeOptions();
+            chromeOptions.AddArguments("--headless=new");
+            var driver = new ChromeDriver(chromeOptions);
+            driver.Navigate().GoToUrl("https://id.ee.co.uk/");
 
             // Set implicit wait to 10 seconds
             driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
 
+            // Set WebDriver wait function to variable
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromMinutes(1));
+
             try
             {
-                WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromMinutes(1));
 
-                Func<IWebDriver, bool> waitForElement = new Func<IWebDriver, bool>((IWebDriver web) =>
+                Func<IWebDriver, bool> waitForSignInElement = new Func<IWebDriver, bool>((IWebDriver web) =>
                 {
-                    // Find the input element
-                    IWebElement inputElement = web.FindElement(By.XPath("//input"));
+                    try
+                    {
+                        // Find the sign in input element
+                        IWebElement inputElement = web.FindElement(By.Id("signInName"));
+
+                        // Continue if the element is present
+                        Console.WriteLine("SignInName Element is present, continue with further actions");
+
+                        // Find the input elements
+                        var elements = driver.FindElements(By.XPath("//input"));
+
+                        // Input the provided keys for the first input element
+                        elements[1].SendKeys("sameer99@outlook.com");
+
+
+                        // Find the button element then click the button
+                        driver.FindElement(By.XPath("//button")).Click();
+                    }
+                    catch
+                    {
+                        Console.WriteLine("SignInName input element is not present");
+                        return false;
+                    }
 
                     // Return true to indicate that the condition is met
                     return true;
                 });
 
                 // Wait until the element is present or timeout occurs
-                wait.Until(waitForElement);
+                wait.Until(waitForSignInElement);
 
-                // Continue with your code after the element is present
-                Console.WriteLine("Element is present, continue with further actions");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+            }
 
-                // Find the input elements
-                var elements = driver.FindElements(By.XPath("//input"));
+            try
+            {
+                Func<IWebDriver, bool> waitForPasswordElement = new Func<IWebDriver, bool>((IWebDriver web) =>
+                {
+                    // Find the password input element
+                    try
+                    {
+                        IWebElement inputElement = web.FindElement(By.Id("password"));
 
-                // Input the provided keys for the first input element
-                elements[1].SendKeys("sameer99@outlook.com");
+                        // Continue if the element is present
+                        Console.WriteLine("Password Element is present, continue with further actions");
+
+                        // Find the input elements
+                        var elements = driver.FindElements(By.XPath("//input"));
+
+                        // Input the provided keys for the third input element
+                        elements[2].SendKeys("D@tagifting2113");
+
+                        // Find the button element then click the button
+                        driver.FindElement(By.XPath("//button")).Click();
+
+                        // Find the button elements
+                        elements = driver.FindElements(By.XPath("//button"));
+
+                        elements[0].Click();
+                    }
+                    catch
+                    {
+                        Console.WriteLine("Password input element is not present");
+                        return false;
+                    }
+
+                    // Return true to indicate that the condition is met
+                    return true;
+                });
+
+                wait.Until(waitForPasswordElement);
+
+                //stores all cookies from the session
+                var cookies = driver.Manage().Cookies.AllCookies;
+
+                // Write to console after retrieving cookies
+                Console.WriteLine("Cookies have been retrieved and stored");
+
+                //     var foundElement elements.First(e => e.Text.Contains("Accept all "));
+
 
                 // Find the button element then click the button
-                driver.FindElement(By.XPath("//button")).Click();
-
-                wait.Until(waitForElement);
-
-                // Continue with your code after the element is present
-                Console.WriteLine("Element is present, continue with further actions");
-
-                // Find the input elements
-                elements = driver.FindElements(By.XPath("//input"));
-
-                // Input the provided keys for the third input element
-                elements[2].SendKeys("D@tagifting2113");
-
-                // Find the button element then click the button
-                driver.FindElement(By.XPath("//button")).Click();
-
-                // Find the button elements
-                elements = driver.FindElements(By.XPath("//button"));
-
-                elements[0].Click();
-
-
-                // Find the button element then click the button
-                driver.FindElement(By.XPath("//button")).Click();
+                //driver.FindElement(By.XPath("//button")).Click();
 
             }
             catch (Exception ex)
@@ -81,198 +158,169 @@ namespace DataGifting
             }
             finally
             {
-                driver.Quit();
+                //driver.Quit();
             }
 
-            
-            
-            string baseUri = "https://id.ee.co.uk/";
-            //string uri = null;
-            string confirmedUri = "https://auth.ee.co.uk/e2ea8fbf-98c0-4cf1-a2df-ee9d55ef69c3/B2C_1A_RPBT_SignUpSignIn/api/CombinedSigninAndSignup/confirmed";
-            string firstSignUpUri = "https://auth.ee.co.uk/static/content/stage-2/SignUpSignIn/SignUpSignInPage1/unified.html";
-            string secondSignUpUri = "https://auth.ee.co.uk/static/content/stage-2/SignUpSignIn/SignUpSignInPage2/unified.html";
-            string loginUri = "https://auth.ee.co.uk/e2ea8fbf-98c0-4cf1-a2df-ee9d55ef69c3/B2C_1A_RPBT_SignUpSignIn/SelfAsserted";
-            string dashboardUri = "https://id.ee.co.uk/id/dashboard";
-            string dashboardRedirectUri = "https://ee.co.uk/exp/home/";
-            string openidUri = "https://auth.ee.co.uk/e2ea8fbf-98c0-4cf1-a2df-ee9d55ef69c3/b2c_1a_rpbt_signupsignin/v2.0/.well-known/openid-configuration";
-            string useridUri = "https://auth.ee.co.uk/common/v1/customer-identity-profiles?identity-id=2dcfe49c-81a0-4581-8662-7735017ea90b";
-            string identityUri = "https://api.ee.co.uk/digital/v1/person-identities/self";
-            string usageDataUri = "https://ee.co.uk/plans-subscriptions/mobile/usage-since-last-bill";
-            string userDataUri = "https://ee.co.uk/app/api/basic";
-            string dataGiftUri = "https://ee.co.uk/plans-subscriptions/mobile/data-gifting";
+            //// create an instance of HttpClientHandler with cookie support
+            //CookieContainer cookies = new CookieContainer();
+            //HttpClientHandler handler = new HttpClientHandler();
+            //handler.CookieContainer = cookies;
+            //handler.UseCookies = true;
+            //handler.AllowAutoRedirect = false;
+            //HttpClient client = new HttpClient(handler); // pass the HttpClientHandler to HttpClient
 
-            string p = "B2C_1A_RPBT_SignUpSignIn";
-            string request_type = "RESPONSE";
-            string signInName = "";
-            string password = "";
-            string slice = "001-000";
-            string dc = "DB3";
-            string rememberMe = "false";
-            string pageViewId = null;
-            string pageId = "CombinedSigninAndSignup";
-            string trace = "[]";
-            string diags = "";
+            ////LogicMethods.SetDefaultPOSTRequestHeaders(client);
 
-            // create an instance of HttpClientHandler with cookie support
-            CookieContainer cookies = new CookieContainer();
-            HttpClientHandler handler = new HttpClientHandler();
-            handler.CookieContainer = cookies;
-            handler.UseCookies = true;
-            handler.AllowAutoRedirect = false;
-            HttpClient client = new HttpClient(handler); // pass the HttpClientHandler to HttpClient
+            //try
+            //{
+            //    LogicMethods.SetFirstGETRequestHeaders(client);
 
-            //LogicMethods.SetDefaultPOSTRequestHeaders(client);
+            //    // store the call for the first GET request
+            //    Uri firstLocationRedirect = await LogicMethods.SendFirstGetRequest(client, baseUri);
+            //    Uri secondLocationRedirect = null;
+            //    Uri thirdLocationRedirect = null;
 
-            try
-            {
-                LogicMethods.SetFirstGETRequestHeaders(client);
+            //    LogicMethods.RemoveGETRequestHeaders(client);
 
-                // store the call for the first GET request
-                Uri firstLocationRedirect = await LogicMethods.SendFirstGetRequest(client, baseUri);
-                Uri secondLocationRedirect = null;
-                Uri thirdLocationRedirect = null;
+            //    if (firstLocationRedirect != null)
+            //    {
+            //        LogicMethods.SetFirstRedirectGETRequestHeaders(client);
 
-                LogicMethods.RemoveGETRequestHeaders(client);
+            //        // store the call for the first redirect GET request
+            //        secondLocationRedirect = await LogicMethods.SendFirstRedirectGetRequest(client, baseUri, firstLocationRedirect);
 
-                if (firstLocationRedirect != null)
-                {
-                    LogicMethods.SetFirstRedirectGETRequestHeaders(client);
+            //        LogicMethods.RemoveGETRequestHeaders(client);
+            //    }
 
-                    // store the call for the first redirect GET request
-                    secondLocationRedirect = await LogicMethods.SendFirstRedirectGetRequest(client, baseUri, firstLocationRedirect);
+            //    if (secondLocationRedirect != null)
+            //    {
+            //        LogicMethods.SetSecondRedirectGETRequestHeaders(client);
 
-                    LogicMethods.RemoveGETRequestHeaders(client);
-                }
+            //        // store the call for the second redirect GET request
+            //        thirdLocationRedirect = await LogicMethods.SendSecondRedirectGetRequest(client, secondLocationRedirect);
 
-                if (secondLocationRedirect != null)
-                {
-                    LogicMethods.SetSecondRedirectGETRequestHeaders(client);
+            //        LogicMethods.RemoveGETRequestHeaders(client);
+            //    }
 
-                    // store the call for the second redirect GET request
-                    thirdLocationRedirect = await LogicMethods.SendSecondRedirectGetRequest(client, secondLocationRedirect);
+            //    LogicMethods.SetLoginGETRequestHeaders(client);
 
-                    LogicMethods.RemoveGETRequestHeaders(client);
-                }
+            //    string responseBody = await LogicMethods.SendLoginGetRequest(client, thirdLocationRedirect);
 
-                LogicMethods.SetLoginGETRequestHeaders(client);
+            //    LogicMethods.RemoveGETRequestHeaders(client);
 
-                string responseBody = await LogicMethods.SendLoginGetRequest(client, thirdLocationRedirect);
+            //    //uri = await LogicMethods.SendInitialGetRequest(client, baseUri, uri);
 
-                LogicMethods.RemoveGETRequestHeaders(client);
+            //    //responseBody = await LogicMethods.SendLoginGetRequest(client, uri);
 
-                //uri = await LogicMethods.SendInitialGetRequest(client, baseUri, uri);
+            //    string clientId = LogicMethods.ExtractClientIdValue(responseBody);
 
-                //responseBody = await LogicMethods.SendLoginGetRequest(client, uri);
+            //    string signupUriQueries = $"{firstSignUpUri}?clientid={clientId}&slice={slice}&dc={dc}";
 
-                string clientId = LogicMethods.ExtractClientIdValue(responseBody);
+            //    string csrf_token = LogicMethods.ExtractCsrfToken(client, responseBody);
 
-                string signupUriQueries = $"{firstSignUpUri}?clientid={clientId}&slice={slice}&dc={dc}";
+            //    //Console.WriteLine($"\n{csrf_token}\n");
 
-                string csrf_token = LogicMethods.ExtractCsrfToken(client, responseBody);
+            //    string tx = LogicMethods.ExtractTxValue(responseBody);
 
-                //Console.WriteLine($"\n{csrf_token}\n");
+            //    pageViewId = LogicMethods.ExtractPageViewIdValue(responseBody);
 
-                string tx = LogicMethods.ExtractTxValue(responseBody);
+            //    diags = $"{{\"pageViewId\":\"{pageViewId}\",\"pageId\":\"{pageId}\",\"trace\":{trace}}}";
 
-                pageViewId = LogicMethods.ExtractPageViewIdValue(responseBody);
+            //    //Console.WriteLine(diags);  
 
-                diags = $"{{\"pageViewId\":\"{pageViewId}\",\"pageId\":\"{pageId}\",\"trace\":{trace}}}";
+            //    // URL-encode the diags string
+            //    string urlEncodedDiags = HttpUtility.UrlEncode(diags);
 
-                //Console.WriteLine(diags);  
+            //    //Console.WriteLine(urlEncodedDiags);
 
-                // URL-encode the diags string
-                string urlEncodedDiags = HttpUtility.UrlEncode(diags);
+            //    string confirmedUriQueries = $"{confirmedUri}?rememberMe={rememberMe}&csrf_token={csrf_token}&tx={tx}&p={p}&diags={urlEncodedDiags}";
 
-                //Console.WriteLine(urlEncodedDiags);
+            //    LogicMethods.SetFirstStaticPageGETRequestHeaders(client);
 
-                string confirmedUriQueries = $"{confirmedUri}?rememberMe={rememberMe}&csrf_token={csrf_token}&tx={tx}&p={p}&diags={urlEncodedDiags}";
+            //    await LogicMethods.SendFirstStaticPageGetRequest(client, signupUriQueries, thirdLocationRedirect);
 
-                LogicMethods.SetFirstStaticPageGETRequestHeaders(client);
+            //    Uri thirdLocationHeader = await LogicMethods.SendSecondRedirectGetRequest(client, secondLocationRedirect);
 
-                await LogicMethods.SendFirstStaticPageGetRequest(client, signupUriQueries, thirdLocationRedirect);
+            //    LogicMethods.RemoveGETRequestHeaders(client);
 
-                Uri thirdLocationHeader = await LogicMethods.SendSecondRedirectGetRequest(client, secondLocationRedirect);
+            //    LogicMethods.SetDefaultPOSTRequestHeaders(client);
 
-                LogicMethods.RemoveGETRequestHeaders(client);
+            //    HttpResponseMessage firstPostResponse = await LogicMethods.SendFirstPostRequest(client, loginUri, tx, p, request_type, signInName, thirdLocationHeader);
 
-                LogicMethods.SetDefaultPOSTRequestHeaders(client);
+            //    await LogicMethods.HandleFirstPostResponse(firstPostResponse);
 
-                HttpResponseMessage firstPostResponse = await LogicMethods.SendFirstPostRequest(client, loginUri, tx, p, request_type, signInName, thirdLocationHeader);
+            //    LogicMethods.RemovePOSTRequestHeaders(client);
 
-                await LogicMethods.HandleFirstPostResponse(firstPostResponse);
+            //    LogicMethods.SetSecondGETRequestHeaders(client);
 
-                LogicMethods.RemovePOSTRequestHeaders(client);
+            //    responseBody = await LogicMethods.SendSecondGetRequest(client, confirmedUriQueries, thirdLocationHeader);
 
-                LogicMethods.SetSecondGETRequestHeaders(client);
+            //    LogicMethods.RemoveGETRequestHeaders(client);
 
-                responseBody = await LogicMethods.SendSecondGetRequest(client, confirmedUriQueries, thirdLocationHeader);
+            //    csrf_token = LogicMethods.ExtractCsrfToken(client, responseBody);
 
-                LogicMethods.RemoveGETRequestHeaders(client);
+            //    //Console.WriteLine($"\n{csrf_token}\n");
 
-                csrf_token = LogicMethods.ExtractCsrfToken(client, responseBody);
+            //    pageViewId = LogicMethods.ExtractPageViewIdValue(responseBody);
 
-                //Console.WriteLine($"\n{csrf_token}\n");
+            //    diags = $"{{\"pageViewId\":\"{pageViewId}\",\"pageId\":\"{pageId}\",\"trace\":{trace}}}";
 
-                pageViewId = LogicMethods.ExtractPageViewIdValue(responseBody);
+            //    //Console.WriteLine(diags);  
 
-                diags = $"{{\"pageViewId\":\"{pageViewId}\",\"pageId\":\"{pageId}\",\"trace\":{trace}}}";
+            //    // URL-encode the diags string
+            //    urlEncodedDiags = HttpUtility.UrlEncode(diags);
 
-                //Console.WriteLine(diags);  
+            //    //Console.WriteLine(urlEncodedDiags);
 
-                // URL-encode the diags string
-                urlEncodedDiags = HttpUtility.UrlEncode(diags);
+            //    signupUriQueries = $"{secondSignUpUri}?clientid={clientId}&slice={slice}&dc={dc}";
 
-                //Console.WriteLine(urlEncodedDiags);
+            //    confirmedUriQueries = $"{confirmedUri}?rememberMe={rememberMe}&csrf_token={csrf_token}&tx={tx}&p={p}&diags={urlEncodedDiags}";
 
-                signupUriQueries = $"{secondSignUpUri}?clientid={clientId}&slice={slice}&dc={dc}";
+            //    LogicMethods.SetSecondStaticPageGETRequestHeaders(client);
 
-                confirmedUriQueries = $"{confirmedUri}?rememberMe={rememberMe}&csrf_token={csrf_token}&tx={tx}&p={p}&diags={urlEncodedDiags}";
+            //    await LogicMethods.SendSecondStaticPageGetRequest(client, signupUriQueries, confirmedUriQueries);
 
-                LogicMethods.SetSecondStaticPageGETRequestHeaders(client);
+            //    LogicMethods.RemoveGETRequestHeaders(client);
 
-                await LogicMethods.SendSecondStaticPageGetRequest(client, signupUriQueries, confirmedUriQueries);
+            //    LogicMethods.SetDefaultPOSTRequestHeaders(client);
 
-                LogicMethods.RemoveGETRequestHeaders(client);
+            //    HttpResponseMessage secondPostResponse = await LogicMethods.SendSecondPostRequest(client, loginUri, tx, p, request_type, signInName, password, confirmedUriQueries);
 
-                LogicMethods.SetDefaultPOSTRequestHeaders(client);
+            //    await LogicMethods.HandleSecondPostResponse(secondPostResponse);
 
-                HttpResponseMessage secondPostResponse = await LogicMethods.SendSecondPostRequest(client, loginUri, tx, p, request_type, signInName, password, confirmedUriQueries);
+            //    LogicMethods.RemovePOSTRequestHeaders(client);
 
-                await LogicMethods.HandleSecondPostResponse(secondPostResponse);
+            //    LogicMethods.SetDefaultGETRequestHeaders(client);
 
-                LogicMethods.RemovePOSTRequestHeaders(client);
+            //    await LogicMethods.SendFourthGetRequest(client, confirmedUriQueries, confirmedUriQueries);
 
-                LogicMethods.SetDefaultGETRequestHeaders(client);
+            //    await LogicMethods.SendDashboardGetRequest(client, dashboardUri);
 
-                await LogicMethods.SendFourthGetRequest(client, confirmedUriQueries, confirmedUriQueries);
+            //    await LogicMethods.SendDashboardRedirectGetRequest(client, dashboardRedirectUri);
 
-                await LogicMethods.SendDashboardGetRequest(client, dashboardUri);
+            //    await LogicMethods.SendOpenidGetRequest(client, openidUri);
 
-                await LogicMethods.SendDashboardRedirectGetRequest(client, dashboardRedirectUri);
+            //    await LogicMethods.SendUseridGetRequest(client, useridUri);
 
-                await LogicMethods.SendOpenidGetRequest(client, openidUri);
+            //    await LogicMethods.SendIdentityGetRequest(client, identityUri);
 
-                await LogicMethods.SendUseridGetRequest(client, useridUri);
+            //    await LogicMethods.SendUsageDataGetRequest(client, usageDataUri);
 
-                await LogicMethods.SendIdentityGetRequest(client, identityUri);
+            //    await LogicMethods.SendUserDataGetRequest(client, userDataUri);
 
-                await LogicMethods.SendUsageDataGetRequest(client, usageDataUri);
+            //    await LogicMethods.SendDataGiftGetRequest(client, dataGiftUri);
+            //}
 
-                await LogicMethods.SendUserDataGetRequest(client, userDataUri);
-
-                await LogicMethods.SendDataGiftGetRequest(client, dataGiftUri);
-            }
-
-            catch (HttpRequestException e)
-            {
-                Console.WriteLine("\nHttpRequestException Caught!");
-                Console.WriteLine("Message :{0} ", e.Message);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("\nAn unexpected exception occurred!");
-                Console.WriteLine("Message :{0} ", ex.Message);
-            }
+            //catch (HttpRequestException e)
+            //{
+            //    Console.WriteLine("\nHttpRequestException Caught!");
+            //    Console.WriteLine("Message :{0} ", e.Message);
+            //}
+            //catch (Exception ex)
+            //{
+            //    Console.WriteLine("\nAn unexpected exception occurred!");
+            //    Console.WriteLine("Message :{0} ", ex.Message);
+            //}
         }
     }
 }

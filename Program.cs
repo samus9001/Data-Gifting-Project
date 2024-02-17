@@ -10,6 +10,7 @@ using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium;
 using System.Security.Cryptography.X509Certificates;
 using OpenQA.Selenium.Support.UI;
+using DataGifting;
 
 namespace DataGifting
 {
@@ -24,10 +25,10 @@ namespace DataGifting
             //string secondSignUpUri = "https://auth.ee.co.uk/static/content/stage-2/SignUpSignIn/SignUpSignInPage2/unified.html";
             //string loginUri = "https://auth.ee.co.uk/e2ea8fbf-98c0-4cf1-a2df-ee9d55ef69c3/B2C_1A_RPBT_SignUpSignIn/SelfAsserted";
             //string dashboardUri = "https://id.ee.co.uk/id/dashboard";
-            //string dashboardRedirectUri = "https://ee.co.uk/exp/home/";
-            //string openidUri = "https://auth.ee.co.uk/e2ea8fbf-98c0-4cf1-a2df-ee9d55ef69c3/b2c_1a_rpbt_signupsignin/v2.0/.well-known/openid-configuration";
-            //string useridUri = "https://auth.ee.co.uk/common/v1/customer-identity-profiles?identity-id=2dcfe49c-81a0-4581-8662-7735017ea90b";
-            //string identityUri = "https://api.ee.co.uk/digital/v1/person-identities/self";
+            string dashboardRedirectUri = "https://ee.co.uk/exp/home/";
+            string openidUri = "https://auth.ee.co.uk/e2ea8fbf-98c0-4cf1-a2df-ee9d55ef69c3/b2c_1a_rpbt_signupsignin/v2.0/.well-known/openid-configuration";
+            string useridUri = "https://auth.ee.co.uk/common/v1/customer-identity-profiles?identity-id=2dcfe49c-81a0-4581-8662-7735017ea90b";
+            string identityUri = "https://api.ee.co.uk/digital/v1/person-identities/self";
             //string usageDataUri = "https://ee.co.uk/plans-subscriptions/mobile/usage-since-last-bill";
             //string userDataUri = "https://ee.co.uk/app/api/basic";
             //string dataGiftUri = "https://ee.co.uk/plans-subscriptions/mobile/data-gifting";
@@ -47,7 +48,7 @@ namespace DataGifting
 
 
 
-            // instantiate a driver instance to control Chrome in headless mode
+            // Instantiate a driver instance to control Chrome in headless mode
             var chromeOptions = new ChromeOptions();
             chromeOptions.AddArguments("--headless=new");
             var driver = new ChromeDriver(chromeOptions);
@@ -70,7 +71,7 @@ namespace DataGifting
                         IWebElement inputElement = web.FindElement(By.Id("signInName"));
 
                         // Continue if the element is present
-                        Console.WriteLine("SignInName Element is present, continue with further actions");
+                        Console.WriteLine("\nSignInName Element is present, continue with further actions");
 
                         // Find the input elements
                         var elements = driver.FindElements(By.XPath("//input"));
@@ -84,7 +85,7 @@ namespace DataGifting
                     }
                     catch
                     {
-                        Console.WriteLine("SignInName input element is not present");
+                        Console.WriteLine("\nSignInName input element is not present");
                         return false;
                     }
 
@@ -111,7 +112,7 @@ namespace DataGifting
                         IWebElement inputElement = web.FindElement(By.Id("password"));
 
                         // Continue if the element is present
-                        Console.WriteLine("Password Element is present, continue with further actions");
+                        Console.WriteLine("\nPassword Element is present, continue with further actions");
 
                         // Find the input elements
                         var elements = driver.FindElements(By.XPath("//input"));
@@ -129,7 +130,7 @@ namespace DataGifting
                     }
                     catch
                     {
-                        Console.WriteLine("Password input element is not present");
+                        Console.WriteLine("\nPassword input element is not present");
                         return false;
                     }
 
@@ -139,17 +140,18 @@ namespace DataGifting
 
                 wait.Until(waitForPasswordElement);
 
-                //stores all cookies from the session
+                // Stores all selenium cookies from the session
                 var cookies = driver.Manage().Cookies.AllCookies;
 
                 // Write to console after retrieving cookies
-                Console.WriteLine("Cookies have been retrieved and stored");
+                Console.WriteLine("\nCookies have been retrieved and stored");
 
-                //     var foundElement elements.First(e => e.Text.Contains("Accept all "));
+                // Convert stored selenium cookies into net cookies
+                var netCookies = cookies.ToNetCookies();
 
+                // Write to console after retrieving cookies
+                Console.WriteLine("\nCookies have been converted");
 
-                // Find the button element then click the button
-                //driver.FindElement(By.XPath("//button")).Click();
 
             }
             catch (Exception ex)
@@ -161,166 +163,170 @@ namespace DataGifting
                 //driver.Quit();
             }
 
-            //// create an instance of HttpClientHandler with cookie support
-            //CookieContainer cookies = new CookieContainer();
-            //HttpClientHandler handler = new HttpClientHandler();
-            //handler.CookieContainer = cookies;
-            //handler.UseCookies = true;
-            //handler.AllowAutoRedirect = false;
-            //HttpClient client = new HttpClient(handler); // pass the HttpClientHandler to HttpClient
+            // Create an instance of CookieContainer to store cookies for HttpClient
+            CookieContainer httpClientCookies = new CookieContainer();
+
+            // Create an instance of HttpClientHandler and set its properties
+            HttpClientHandler handler = new HttpClientHandler();
+            handler.CookieContainer = httpClientCookies; // Set the CookieContainer property to enable cookie support
+            handler.UseCookies = true; // Enable handling of cookies
+            handler.AllowAutoRedirect = false; // Optionally set AllowAutoRedirect to control automatic redirection behavior
+
+            // Create an instance of HttpClient and pass the HttpClientHandler to it
+            HttpClient client = new HttpClient(handler);
 
             ////LogicMethods.SetDefaultPOSTRequestHeaders(client);
 
-            //try
-            //{
-            //    LogicMethods.SetFirstGETRequestHeaders(client);
+            try
+            {
+                //    LogicMethods.SetFirstGETRequestHeaders(client);
 
-            //    // store the call for the first GET request
-            //    Uri firstLocationRedirect = await LogicMethods.SendFirstGetRequest(client, baseUri);
-            //    Uri secondLocationRedirect = null;
-            //    Uri thirdLocationRedirect = null;
+                //    // store the call for the first GET request
+                //    Uri firstLocationRedirect = await LogicMethods.SendFirstGetRequest(client, baseUri);
+                //    Uri secondLocationRedirect = null;
+                //    Uri thirdLocationRedirect = null;
 
-            //    LogicMethods.RemoveGETRequestHeaders(client);
+                //    LogicMethods.RemoveGETRequestHeaders(client);
 
-            //    if (firstLocationRedirect != null)
-            //    {
-            //        LogicMethods.SetFirstRedirectGETRequestHeaders(client);
+                //    if (firstLocationRedirect != null)
+                //    {
+                //        LogicMethods.SetFirstRedirectGETRequestHeaders(client);
 
-            //        // store the call for the first redirect GET request
-            //        secondLocationRedirect = await LogicMethods.SendFirstRedirectGetRequest(client, baseUri, firstLocationRedirect);
+                //        // store the call for the first redirect GET request
+                //        secondLocationRedirect = await LogicMethods.SendFirstRedirectGetRequest(client, baseUri, firstLocationRedirect);
 
-            //        LogicMethods.RemoveGETRequestHeaders(client);
-            //    }
+                //        LogicMethods.RemoveGETRequestHeaders(client);
+                //    }
 
-            //    if (secondLocationRedirect != null)
-            //    {
-            //        LogicMethods.SetSecondRedirectGETRequestHeaders(client);
+                //    if (secondLocationRedirect != null)
+                //    {
+                //        LogicMethods.SetSecondRedirectGETRequestHeaders(client);
 
-            //        // store the call for the second redirect GET request
-            //        thirdLocationRedirect = await LogicMethods.SendSecondRedirectGetRequest(client, secondLocationRedirect);
+                //        // store the call for the second redirect GET request
+                //        thirdLocationRedirect = await LogicMethods.SendSecondRedirectGetRequest(client, secondLocationRedirect);
 
-            //        LogicMethods.RemoveGETRequestHeaders(client);
-            //    }
+                //        LogicMethods.RemoveGETRequestHeaders(client);
+                //    }
 
-            //    LogicMethods.SetLoginGETRequestHeaders(client);
+                //    LogicMethods.SetLoginGETRequestHeaders(client);
 
-            //    string responseBody = await LogicMethods.SendLoginGetRequest(client, thirdLocationRedirect);
+                //    string responseBody = await LogicMethods.SendLoginGetRequest(client, thirdLocationRedirect);
 
-            //    LogicMethods.RemoveGETRequestHeaders(client);
+                //    LogicMethods.RemoveGETRequestHeaders(client);
 
-            //    //uri = await LogicMethods.SendInitialGetRequest(client, baseUri, uri);
+                //    //uri = await LogicMethods.SendInitialGetRequest(client, baseUri, uri);
 
-            //    //responseBody = await LogicMethods.SendLoginGetRequest(client, uri);
+                //    //responseBody = await LogicMethods.SendLoginGetRequest(client, uri);
 
-            //    string clientId = LogicMethods.ExtractClientIdValue(responseBody);
+                //    string clientId = LogicMethods.ExtractClientIdValue(responseBody);
 
-            //    string signupUriQueries = $"{firstSignUpUri}?clientid={clientId}&slice={slice}&dc={dc}";
+                //    string signupUriQueries = $"{firstSignUpUri}?clientid={clientId}&slice={slice}&dc={dc}";
 
-            //    string csrf_token = LogicMethods.ExtractCsrfToken(client, responseBody);
+                //    string csrf_token = LogicMethods.ExtractCsrfToken(client, responseBody);
 
-            //    //Console.WriteLine($"\n{csrf_token}\n");
+                //    //Console.WriteLine($"\n{csrf_token}\n");
 
-            //    string tx = LogicMethods.ExtractTxValue(responseBody);
+                //    string tx = LogicMethods.ExtractTxValue(responseBody);
 
-            //    pageViewId = LogicMethods.ExtractPageViewIdValue(responseBody);
+                //    pageViewId = LogicMethods.ExtractPageViewIdValue(responseBody);
 
-            //    diags = $"{{\"pageViewId\":\"{pageViewId}\",\"pageId\":\"{pageId}\",\"trace\":{trace}}}";
+                //    diags = $"{{\"pageViewId\":\"{pageViewId}\",\"pageId\":\"{pageId}\",\"trace\":{trace}}}";
 
-            //    //Console.WriteLine(diags);  
+                //    //Console.WriteLine(diags);  
 
-            //    // URL-encode the diags string
-            //    string urlEncodedDiags = HttpUtility.UrlEncode(diags);
+                //    // URL-encode the diags string
+                //    string urlEncodedDiags = HttpUtility.UrlEncode(diags);
 
-            //    //Console.WriteLine(urlEncodedDiags);
+                //    //Console.WriteLine(urlEncodedDiags);
 
-            //    string confirmedUriQueries = $"{confirmedUri}?rememberMe={rememberMe}&csrf_token={csrf_token}&tx={tx}&p={p}&diags={urlEncodedDiags}";
+                //    string confirmedUriQueries = $"{confirmedUri}?rememberMe={rememberMe}&csrf_token={csrf_token}&tx={tx}&p={p}&diags={urlEncodedDiags}";
 
-            //    LogicMethods.SetFirstStaticPageGETRequestHeaders(client);
+                //    LogicMethods.SetFirstStaticPageGETRequestHeaders(client);
 
-            //    await LogicMethods.SendFirstStaticPageGetRequest(client, signupUriQueries, thirdLocationRedirect);
+                //    await LogicMethods.SendFirstStaticPageGetRequest(client, signupUriQueries, thirdLocationRedirect);
 
-            //    Uri thirdLocationHeader = await LogicMethods.SendSecondRedirectGetRequest(client, secondLocationRedirect);
+                //    Uri thirdLocationHeader = await LogicMethods.SendSecondRedirectGetRequest(client, secondLocationRedirect);
 
-            //    LogicMethods.RemoveGETRequestHeaders(client);
+                //    LogicMethods.RemoveGETRequestHeaders(client);
 
-            //    LogicMethods.SetDefaultPOSTRequestHeaders(client);
+                //    LogicMethods.SetDefaultPOSTRequestHeaders(client);
 
-            //    HttpResponseMessage firstPostResponse = await LogicMethods.SendFirstPostRequest(client, loginUri, tx, p, request_type, signInName, thirdLocationHeader);
+                //    HttpResponseMessage firstPostResponse = await LogicMethods.SendFirstPostRequest(client, loginUri, tx, p, request_type, signInName, thirdLocationHeader);
 
-            //    await LogicMethods.HandleFirstPostResponse(firstPostResponse);
+                //    await LogicMethods.HandleFirstPostResponse(firstPostResponse);
 
-            //    LogicMethods.RemovePOSTRequestHeaders(client);
+                //    LogicMethods.RemovePOSTRequestHeaders(client);
 
-            //    LogicMethods.SetSecondGETRequestHeaders(client);
+                //    LogicMethods.SetSecondGETRequestHeaders(client);
 
-            //    responseBody = await LogicMethods.SendSecondGetRequest(client, confirmedUriQueries, thirdLocationHeader);
+                //    responseBody = await LogicMethods.SendSecondGetRequest(client, confirmedUriQueries, thirdLocationHeader);
 
-            //    LogicMethods.RemoveGETRequestHeaders(client);
+                //    LogicMethods.RemoveGETRequestHeaders(client);
 
-            //    csrf_token = LogicMethods.ExtractCsrfToken(client, responseBody);
+                //    csrf_token = LogicMethods.ExtractCsrfToken(client, responseBody);
 
-            //    //Console.WriteLine($"\n{csrf_token}\n");
+                //    //Console.WriteLine($"\n{csrf_token}\n");
 
-            //    pageViewId = LogicMethods.ExtractPageViewIdValue(responseBody);
+                //    pageViewId = LogicMethods.ExtractPageViewIdValue(responseBody);
 
-            //    diags = $"{{\"pageViewId\":\"{pageViewId}\",\"pageId\":\"{pageId}\",\"trace\":{trace}}}";
+                //    diags = $"{{\"pageViewId\":\"{pageViewId}\",\"pageId\":\"{pageId}\",\"trace\":{trace}}}";
 
-            //    //Console.WriteLine(diags);  
+                //    //Console.WriteLine(diags);  
 
-            //    // URL-encode the diags string
-            //    urlEncodedDiags = HttpUtility.UrlEncode(diags);
+                //    // URL-encode the diags string
+                //    urlEncodedDiags = HttpUtility.UrlEncode(diags);
 
-            //    //Console.WriteLine(urlEncodedDiags);
+                //    //Console.WriteLine(urlEncodedDiags);
 
-            //    signupUriQueries = $"{secondSignUpUri}?clientid={clientId}&slice={slice}&dc={dc}";
+                //    signupUriQueries = $"{secondSignUpUri}?clientid={clientId}&slice={slice}&dc={dc}";
 
-            //    confirmedUriQueries = $"{confirmedUri}?rememberMe={rememberMe}&csrf_token={csrf_token}&tx={tx}&p={p}&diags={urlEncodedDiags}";
+                //    confirmedUriQueries = $"{confirmedUri}?rememberMe={rememberMe}&csrf_token={csrf_token}&tx={tx}&p={p}&diags={urlEncodedDiags}";
 
-            //    LogicMethods.SetSecondStaticPageGETRequestHeaders(client);
+                //    LogicMethods.SetSecondStaticPageGETRequestHeaders(client);
 
-            //    await LogicMethods.SendSecondStaticPageGetRequest(client, signupUriQueries, confirmedUriQueries);
+                //    await LogicMethods.SendSecondStaticPageGetRequest(client, signupUriQueries, confirmedUriQueries);
 
-            //    LogicMethods.RemoveGETRequestHeaders(client);
+                //    LogicMethods.RemoveGETRequestHeaders(client);
 
-            //    LogicMethods.SetDefaultPOSTRequestHeaders(client);
+                //    LogicMethods.SetDefaultPOSTRequestHeaders(client);
 
-            //    HttpResponseMessage secondPostResponse = await LogicMethods.SendSecondPostRequest(client, loginUri, tx, p, request_type, signInName, password, confirmedUriQueries);
+                //    HttpResponseMessage secondPostResponse = await LogicMethods.SendSecondPostRequest(client, loginUri, tx, p, request_type, signInName, password, confirmedUriQueries);
 
-            //    await LogicMethods.HandleSecondPostResponse(secondPostResponse);
+                //    await LogicMethods.HandleSecondPostResponse(secondPostResponse);
 
-            //    LogicMethods.RemovePOSTRequestHeaders(client);
+                //    LogicMethods.RemovePOSTRequestHeaders(client);
 
-            //    LogicMethods.SetDefaultGETRequestHeaders(client);
+                //    LogicMethods.SetDefaultGETRequestHeaders(client);
 
-            //    await LogicMethods.SendFourthGetRequest(client, confirmedUriQueries, confirmedUriQueries);
+                //    await LogicMethods.SendFourthGetRequest(client, confirmedUriQueries, confirmedUriQueries);
 
-            //    await LogicMethods.SendDashboardGetRequest(client, dashboardUri);
+                //    await LogicMethods.SendDashboardGetRequest(client, dashboardUri);
 
-            //    await LogicMethods.SendDashboardRedirectGetRequest(client, dashboardRedirectUri);
+                await LogicMethods.SendDashboardRedirectGetRequest(client, dashboardRedirectUri);
 
-            //    await LogicMethods.SendOpenidGetRequest(client, openidUri);
+                await LogicMethods.SendOpenidGetRequest(client, openidUri);
 
-            //    await LogicMethods.SendUseridGetRequest(client, useridUri);
+                await LogicMethods.SendUseridGetRequest(client, useridUri);
 
-            //    await LogicMethods.SendIdentityGetRequest(client, identityUri);
+                await LogicMethods.SendIdentityGetRequest(client, identityUri);
 
-            //    await LogicMethods.SendUsageDataGetRequest(client, usageDataUri);
+                //    await LogicMethods.SendUsageDataGetRequest(client, usageDataUri);
 
-            //    await LogicMethods.SendUserDataGetRequest(client, userDataUri);
+                //    await LogicMethods.SendUserDataGetRequest(client, userDataUri);
 
-            //    await LogicMethods.SendDataGiftGetRequest(client, dataGiftUri);
-            //}
+                //    await LogicMethods.SendDataGiftGetRequest(client, dataGiftUri);
+            }
 
-            //catch (HttpRequestException e)
-            //{
-            //    Console.WriteLine("\nHttpRequestException Caught!");
-            //    Console.WriteLine("Message :{0} ", e.Message);
-            //}
-            //catch (Exception ex)
-            //{
-            //    Console.WriteLine("\nAn unexpected exception occurred!");
-            //    Console.WriteLine("Message :{0} ", ex.Message);
-            //}
+            catch (HttpRequestException e)
+            {
+                Console.WriteLine("\nHttpRequestException Caught!");
+                Console.WriteLine("Message :{0} ", e.Message);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("\nAn unexpected exception occurred!");
+                Console.WriteLine("Message :{0} ", ex.Message);
+            }
         }
     }
 }

@@ -1,14 +1,41 @@
 ﻿using System;
+using System.Buffers.Text;
 using System.Collections.Specialized;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Web;
+using OpenQA.Selenium;
+using System.Collections.Generic;
+using System.Net;
 
 namespace DataGifting
 {
-    public class LogicMethods
+    public static class LogicMethods
     {
+        /// <summary>
+        /// convert Selenium cookies to Net Cookies
+        /// </summary>
+        /// <param name="seleniumCookies"></param>
+        /// <returns></returns>
+        public static IEnumerable<System.Net.Cookie> ToNetCookies(this IEnumerable<OpenQA.Selenium.Cookie> seleniumCookies)
+        {
+            foreach (var seleniumCookie in seleniumCookies)
+            {
+                var netCookie = new System.Net.Cookie
+                {
+                    Domain = seleniumCookie.Domain,
+                    Name = seleniumCookie.Name,
+                    Value = seleniumCookie.Value,
+                    Path = seleniumCookie.Path,
+                    Secure = seleniumCookie.Secure,
+                    HttpOnly = seleniumCookie.IsHttpOnly,
+                    Expires = seleniumCookie.Expiry ?? DateTime.MinValue
+                };
+                yield return netCookie;
+            }
+        }
+
         /// <summary>
         /// set the request headers for the first GET request
         /// </summary>
@@ -838,10 +865,10 @@ namespace DataGifting
                 Console.WriteLine("Identity GET request was successful\n");
 
                 // retrieves the response body as a string
-                // string identityResponseBody = await client.GetStringAsync(identityUri);
-                // Console.WriteLine($"RESPONSE BODY: {identityResponseBody}\n");
+                 string identityResponseBody = await client.GetStringAsync(identityUri);
+                Console.WriteLine($"RESPONSE BODY: {identityResponseBody}\n");
 
-                //return identityResponseBody;
+                return identityResponseBody;
             }
             else
             {

@@ -60,6 +60,8 @@ namespace DataGifting
             // Set WebDriver wait function to variable
             WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromMinutes(1));
 
+            IEnumerable<System.Net.Cookie> netCookies = null;
+
             try
             {
 
@@ -141,17 +143,22 @@ namespace DataGifting
                 wait.Until(waitForPasswordElement);
 
                 // Stores all selenium cookies from the session
-                var cookies = driver.Manage().Cookies.AllCookies;
+                var seleniumCookies = driver.Manage().Cookies.AllCookies;
 
-                // Write to console after retrieving cookies
-                Console.WriteLine("\nCookies have been retrieved and stored");
+                if (seleniumCookies != null)
+                {
+                    // Write to console after retrieving cookies
+                    Console.WriteLine("\nCookies have been retrieved and stored");
+                }
 
                 // Convert stored selenium cookies into net cookies
-                var netCookies = cookies.ToNetCookies();
+                netCookies = seleniumCookies.ToNetCookies();
 
-                // Write to console after retrieving cookies
-                Console.WriteLine("\nCookies have been converted");
-
+                if (netCookies != null)
+                {
+                    // Write to console after retrieving cookies
+                    Console.WriteLine("\nCookies have been converted");
+                }
 
             }
             catch (Exception ex)
@@ -175,10 +182,17 @@ namespace DataGifting
             // Create an instance of HttpClient and pass the HttpClientHandler to it
             HttpClient client = new HttpClient(handler);
 
+            // Add cookies to the HttpClient's CookieContainer
+            foreach (var cookie in netCookies)
+            {
+                httpClientCookies.Add(cookie);
+            }
+
             ////LogicMethods.SetDefaultPOSTRequestHeaders(client);
 
             try
             {
+                #region oldcode
                 //    LogicMethods.SetFirstGETRequestHeaders(client);
 
                 //    // store the call for the first GET request
@@ -301,6 +315,7 @@ namespace DataGifting
                 //    await LogicMethods.SendFourthGetRequest(client, confirmedUriQueries, confirmedUriQueries);
 
                 //    await LogicMethods.SendDashboardGetRequest(client, dashboardUri);
+                #endregion
 
                 await LogicMethods.SendDashboardRedirectGetRequest(client, dashboardRedirectUri);
 

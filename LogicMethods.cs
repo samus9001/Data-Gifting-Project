@@ -7,7 +7,6 @@ using System.Net.Http.Headers;
 using System.Web;
 using OpenQA.Selenium;
 using System.Collections.Generic;
-using System.Net;
 
 namespace DataGifting
 {
@@ -18,8 +17,9 @@ namespace DataGifting
         /// </summary>
         /// <param name="seleniumCookies"></param>
         /// <returns></returns>
-        public static IEnumerable<System.Net.Cookie> ToNetCookies(this IEnumerable<OpenQA.Selenium.Cookie> seleniumCookies)
+        public static CookieCollection ToNetCookies(this IEnumerable<OpenQA.Selenium.Cookie> seleniumCookies)
         {
+            var netCookiesCollection = new CookieCollection();
             foreach (var seleniumCookie in seleniumCookies)
             {
                 var netCookie = new System.Net.Cookie
@@ -32,8 +32,9 @@ namespace DataGifting
                     HttpOnly = seleniumCookie.IsHttpOnly,
                     Expires = seleniumCookie.Expiry ?? DateTime.MinValue
                 };
-                yield return netCookie;
+                netCookiesCollection.Add(netCookie);
             }
+            return netCookiesCollection;
         }
 
         /// <summary>
@@ -865,7 +866,7 @@ namespace DataGifting
                 Console.WriteLine("Identity GET request was successful\n");
 
                 // retrieves the response body as a string
-                 string identityResponseBody = await client.GetStringAsync(identityUri);
+                string identityResponseBody = await client.GetStringAsync(identityUri);
                 Console.WriteLine($"RESPONSE BODY: {identityResponseBody}\n");
 
                 return identityResponseBody;

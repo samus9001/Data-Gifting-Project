@@ -117,11 +117,15 @@ namespace DataGifting
                     // Switch to the iframe (pop-up) only if the implicit wait has been set
                     driver.SwitchTo().Frame(0);
 
-                    // Define the XPath of the element inside the iframe
-                    string elementXPath = "//a[contains(text(), 'Accept all cookies')]";
+                    Thread.Sleep(2000);
+
+                    // Identify element inside the iframe by text it contains
+                    string cookieElementText = "//a[contains(text(), 'Accept all cookies')]";
+
+                    Thread.Sleep(2000);
 
                     // Locate the element inside the iframe and click on it
-                    IWebElement element = driver.FindElement(By.XPath(elementXPath));
+                    IWebElement element = driver.FindElement(By.XPath(cookieElementText));
                     element.Click();
 
                     // Switch back to the main content
@@ -149,13 +153,28 @@ namespace DataGifting
 
                     var selectToButton = driver.FindElement(By.XPath("/html/body/div[2]/div[5]/div/div[2]/div[2]/div/section[3]/section/div/main/div[1]/div/div[2]/section/div/div[2]/div/div/div[1]/span/span/span[1]/span/span[1]"));
 
-                    selectFromButton.Click();
+                    selectToButton.Click();
 
                     Thread.Sleep(2000);
 
-                    var selectToNumberButton = driver.FindElement(By.CssSelector("li.select2-results__option.select2-results__option--highlighted[title='07753261456']"));
+                    var selectToNumberButton = driver.FindElement(By.CssSelector("li.select2-results__option[title='07753261456']"));
 
-                    selectFromNumberButton.Click();
+                    selectToNumberButton.Click();
+
+                    Thread.Sleep(2000);
+
+                    var elements = driver.FindElement(By.XPath("//*[@id=\"main\"]/div[1]/div/div[4]/div[3]/div[4]/a"));
+                    elements.Click();
+
+                    Thread.Sleep(2000);
+
+                    var giftData = driver.FindElement(By.XPath("//*[@id=\"main\"]/div[1]/div/div[4]/div[4]/div[2]/button"));
+                    giftData.Click();
+
+                    Thread.Sleep(2000);
+
+                    var confirmGiftDataButton = driver.FindElement(By.XPath("//*[@id=\"main\"]/div[1]/div/div[5]/div[2]/form/button[1]"));
+                    confirmGiftDataButton.Click();
 
                     // Return true to indicate that the condition is met
                     return true;

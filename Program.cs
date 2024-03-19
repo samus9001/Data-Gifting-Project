@@ -29,7 +29,6 @@ namespace DataGifting
 
             try
             {
-
                 Func<IWebDriver, bool> waitForSignInElement = new Func<IWebDriver, bool>((IWebDriver web) =>
                 {
                     try
@@ -37,15 +36,16 @@ namespace DataGifting
                         // Find the sign in input element
                         IWebElement inputElement = web.FindElement(By.Id("signInName"));
 
-                        // Continue if the element is present
-                        Console.WriteLine("\nSignInName Element is present, continue with further actions");
+                        if (inputElement != null)
+                        {
+                            Console.WriteLine("\nSignInName Element is present");
+                        }
 
                         // Find the input elements
                         var elements = driver.FindElements(By.XPath("//input"));
 
                         // Input the provided keys for the first input element
                         elements[1].SendKeys("sameer99@outlook.com");
-
 
                         // Find the button element then click the button
                         driver.FindElement(By.XPath("//button")).Click();
@@ -69,6 +69,8 @@ namespace DataGifting
                 Console.WriteLine($"An error occurred: {ex.Message}");
             }
 
+            await Task.Delay(5000);
+
             try
             {
                 Func<IWebDriver, bool> waitForPasswordElement = new Func<IWebDriver, bool>((IWebDriver web) =>
@@ -78,8 +80,10 @@ namespace DataGifting
                     {
                         IWebElement inputElement = web.FindElement(By.Id("password"));
 
-                        // Continue if the element is present
-                        Console.WriteLine("\nPassword Element is present, continue with further actions");
+                        if (inputElement != null)
+                        {
+                            Console.WriteLine("\nPassword Element is present");
+                        }
 
                         // Find the input elements
                         var elements = driver.FindElements(By.XPath("//input"));
@@ -113,68 +117,76 @@ namespace DataGifting
             {
                 Func<IWebDriver, bool> waitForDataGift = new Func<IWebDriver, bool>((IWebDriver web) =>
                 {
+                    // Find the sign in input element
+                    IWebElement frameElement = web.FindElement(By.Name("trustarc_cm"));
 
-                    // Switch to the iframe (pop-up) only if the implicit wait has been set
+                    // Switch to the iframe (cookies pop-up)
                     driver.SwitchTo().Frame(0);
 
-                    Thread.Sleep(2000);
-
-                    // Identify element inside the iframe by text it contains
-                    string cookieElementText = "//a[contains(text(), 'Accept all cookies')]";
-
-                    Thread.Sleep(2000);
+                    // Store element inside the iframe by text it contains
+                    string acceptCookiesElementText = "//a[contains(text(), 'Accept all cookies')]";
 
                     // Locate the element inside the iframe and click on it
-                    IWebElement element = driver.FindElement(By.XPath(cookieElementText));
-                    element.Click();
+                    IWebElement acceptCookiesElement = driver.FindElement(By.XPath(acceptCookiesElementText));
+
+                    acceptCookiesElement.Click();
 
                     // Switch back to the main content
                     driver.SwitchTo().DefaultContent();
 
-                    Thread.Sleep(2000);
+                    // Load the data gifting page
+                    driver.Navigate().GoToUrl("https://ee.co.uk/plans-subscriptions/mobile/data-gifting/");
 
-                    var giftDataButton = driver.FindElement(By.XPath("//html/body/div[1]/div/div[2]/div[1]/div[1]/div/section/main/div[2]/div/div[1]/div/div[1]/div/div/div[2]/div[1]/a"));
+                    if (driver.Url == "https://ee.co.uk/plans-subscriptions/mobile/data-gifting/")
+                    {
+                        Console.WriteLine("\nSuccessfully navigated to data gifting page");
+                    }
 
-                    giftDataButton.Click();
+                    // Find the send From dropdown button
+                    var findFromButton = driver.FindElement(By.Id("select2-supplierMsisdn-container"));
 
-                    Thread.Sleep(2000);
+                    // Click the send From dropdown button
+                    findFromButton.Click();
 
-                    var selectFromButton = driver.FindElement(By.XPath("/html/body/div[2]/div[5]/div/div[2]/div[2]/div/section[3]/section/div/main/div[1]/div/div[2]/section/div/div[1]/div/div/div[1]/span/span/span[1]/span/span[1]"));
-
-                    selectFromButton.Click();
-
-                    Thread.Sleep(2000);
-
+                    // Find the send from phone number element button
                     var selectFromNumberButton = driver.FindElement(By.CssSelector("li.select2-results__option[title='07725917672']"));
 
+                    // Click the phone number button
                     selectFromNumberButton.Click();
 
-                    Thread.Sleep(2000);
+                    // Find the send To dropdown button
+                    var findToButton = driver.FindElement(By.Id("select2-consumerMsisdn-container"));
 
-                    var selectToButton = driver.FindElement(By.XPath("/html/body/div[2]/div[5]/div/div[2]/div[2]/div/section[3]/section/div/main/div[1]/div/div[2]/section/div/div[2]/div/div/div[1]/span/span/span[1]/span/span[1]"));
+                    // Click the send To dropdown button
+                    findToButton.Click();
 
-                    selectToButton.Click();
-
-                    Thread.Sleep(2000);
-
+                    // Find the send to phone number element button
                     var selectToNumberButton = driver.FindElement(By.CssSelector("li.select2-results__option[title='07753261456']"));
 
+                    // Click the phone number button
                     selectToNumberButton.Click();
 
-                    Thread.Sleep(2000);
+                    // Find the 5GB gift amount button
+                    var giftDataAmount = driver.FindElement(By.XPath("//*[@id=\"main\"]/div[1]/div/div[4]/div[3]/div[4]/a"));
 
-                    var elements = driver.FindElement(By.XPath("//*[@id=\"main\"]/div[1]/div/div[4]/div[3]/div[4]/a"));
-                    elements.Click();
+                    // Click the gift amount button
+                    giftDataAmount.Click();
 
-                    Thread.Sleep(2000);
-
+                    // Find the Gift Data button
                     var giftData = driver.FindElement(By.XPath("//*[@id=\"main\"]/div[1]/div/div[4]/div[4]/div[2]/button"));
+
+                    // Click the Gift Data button
                     giftData.Click();
 
-                    Thread.Sleep(2000);
-
+                    // Find the Gift Data confirmation button
                     var confirmGiftDataButton = driver.FindElement(By.XPath("//*[@id=\"main\"]/div[1]/div/div[5]/div[2]/form/button[1]"));
-                    confirmGiftDataButton.Click();
+
+                    // Click the Gift Data confirmation button
+                    //confirmGiftDataButton.Click();
+                    if (confirmGiftDataButton != null)
+                    {
+                        Console.WriteLine("successfully gifted data!");
+                    }
 
                     // Return true to indicate that the condition is met
                     return true;
@@ -188,7 +200,7 @@ namespace DataGifting
             }
             finally
             {
-                //driver.Quit();
+                driver.Quit();
             }
         }
     }

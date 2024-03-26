@@ -23,35 +23,25 @@ namespace DataGifting
             var chromeOptions = new ChromeOptions();
             //chromeOptions.AddArguments("--headless=new");
             var driver = new ChromeDriver(chromeOptions);
-            driver.Navigate().GoToUrl("https://id.ee.co.uk/");
+            driver.Navigate().GoToUrl("https://id.ee.co.uk");
 
             LogicMethods.waitForSignInElement(driver);
 
-            await Task.Delay(1000);
-
             LogicMethods.waitForPasswordElement(driver);
-
-            await Task.Delay(3000);
 
             LogicMethods.waitForAcceptCookies(driver);
 
-            await Task.Delay(1000);
+            //LogicMethods.waitForDataUsagePage(driver);
 
             LogicMethods.waitForDataGiftPage(driver);
 
-            await Task.Delay(3000);
-
             LogicMethods.waitForDataGiftNumbers(driver);
-
-            await Task.Delay(1000);
 
             LogicMethods.waitForDataGiftAmount(driver);
 
-            await Task.Delay(1000);
+            //LogicMethods.waitForDataGiftConfirm(driver);
 
-            LogicMethods.waitForDataGiftConfirm(driver);
-
-            driver.Quit();
+            //driver.Quit();
         }
     }
 }

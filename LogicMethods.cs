@@ -9,6 +9,8 @@ using OpenQA.Selenium;
 using System.Collections.Generic;
 using OpenQA.Selenium.Support.UI;
 using System.Security.Cryptography.X509Certificates;
+using Newtonsoft.Json.Linq;
+using SeleniumExtras.WaitHelpers;
 
 namespace DataGifting
 {
@@ -41,7 +43,7 @@ namespace DataGifting
                     try
                     {
                         // Find the sign in input element
-                        IWebElement inputElement = web.FindElement(By.Id("signInName"));
+                        IWebElement inputElement = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.Id("signInName")));
 
                         if (inputElement != null)
                         {
@@ -69,6 +71,7 @@ namespace DataGifting
 
                 return wait.Until(waitForSignInElement);
             }
+
             catch (Exception ex)
             {
                 Console.WriteLine($"An error occurred: {ex.Message}");
@@ -92,7 +95,7 @@ namespace DataGifting
                     // Find the password input element
                     try
                     {
-                        IWebElement inputElement = web.FindElement(By.Id("password"));
+                        IWebElement inputElement = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.Id("password")));
 
                         if (inputElement != null)
                         {
@@ -119,6 +122,7 @@ namespace DataGifting
                 });
                 return wait.Until(waitForPasswordElement);
             }
+
             catch (Exception ex)
             {
                 Console.WriteLine($"An error occurred: {ex.Message}");
@@ -140,7 +144,7 @@ namespace DataGifting
                 Func<IWebDriver, bool> waitForAcceptCookies = new Func<IWebDriver, bool>((IWebDriver web) =>
                 {
                     // Find the sign in input element
-                    IWebElement frameElement = web.FindElement(By.Name("trustarc_cm"));
+                    IWebElement frameElement = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.Name("trustarc_cm")));
 
                     // Switch to the iframe (cookies pop-up)
                     driver.SwitchTo().Frame(0);
@@ -161,7 +165,45 @@ namespace DataGifting
 
                 return wait.Until(waitForAcceptCookies);
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+                return false;
+            }
+        }
 
+        /// <summary>
+        /// navigates to the data usage page and extracts JSON data
+        /// </summary>
+        /// <param name="driver"></param>
+        /// <returns></returns>
+        public static bool waitForDataUsagePage(IWebDriver driver)
+        {
+            try
+            {
+                WebDriverWait wait = CreateWebDriverWait(driver);
+
+                Func<IWebDriver, bool> waitForDataUsagePage = new Func<IWebDriver, bool>((IWebDriver web) =>
+                {
+                    // Navigate to the URL
+                    driver.Navigate().GoToUrl("https://ee.co.uk/plans-subscriptions/mobile/usage-since-last-bill");
+
+                    wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.UrlMatches("https://ee.co.uk/plans-subscriptions/mobile/usage-since-last-bill"));
+
+                    if (driver.Url == "https://ee.co.uk/plans-subscriptions/mobile/usage-since-last-bill")
+                    {
+                        Console.WriteLine("\nSuccessfully loaded data usage page");
+                        return true;
+                    }
+                    else
+                    {
+                        Console.WriteLine("\n Failed to load data usage page");
+                        return false;
+                    }
+                });
+
+                return wait.Until(waitForDataUsagePage);
+            }
             catch (Exception ex)
             {
                 Console.WriteLine($"An error occurred: {ex.Message}");
@@ -184,17 +226,20 @@ namespace DataGifting
                 {
 
                     // Load the data gifting page
-                    driver.Navigate().GoToUrl("https://ee.co.uk/plans-subscriptions/mobile/data-gifting/");
+                    driver.Navigate().GoToUrl("https://ee.co.uk/plans-subscriptions/mobile/data-gifting");
 
-                    if (driver.Url == "https://ee.co.uk/plans-subscriptions/mobile/data-gifting/")
+                    wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.UrlMatches("https://ee.co.uk/plans-subscriptions/mobile/data-gifting"));
+
+                    if (driver.Url == "https://ee.co.uk/plans-subscriptions/mobile/data-gifting")
                     {
                         Console.WriteLine("\nSuccessfully loaded data gifting page");
+                        return true;
                     }
                     else
                     {
                         Console.WriteLine("\n Failed to load data gifting page");
+                        return false;
                     }
-                    return true;
                 });
 
                 return wait.Until(waitForDataGiftPage);
@@ -220,7 +265,7 @@ namespace DataGifting
                 Func<IWebDriver, bool> waitForDataGiftNumbers = new Func<IWebDriver, bool>((IWebDriver web) =>
                 {
                     // Find the send From dropdown button
-                    var findFromButton = driver.FindElement(By.Id("select2-supplierMsisdn-container"));
+                    var findFromButton = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.Id("select2-supplierMsisdn-container")));
 
                     // Click the send From dropdown button
                     findFromButton.Click();
@@ -269,7 +314,7 @@ namespace DataGifting
                 Func<IWebDriver, bool> waitForDataGiftAmount = new Func<IWebDriver, bool>((IWebDriver web) =>
                 {
                     // Find the 5GB gift amount button
-                    var giftDataAmount = driver.FindElement(By.XPath("//*[@id=\"main\"]/div[1]/div/div[4]/div[3]/div[4]/a"));
+                    var giftDataAmount = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.XPath("//*[@id=\"main\"]/div[1]/div/div[4]/div[3]/div[4]/a")));
 
                     // Click the gift amount button
                     giftDataAmount.Click();
@@ -301,16 +346,17 @@ namespace DataGifting
                 {
 
                     // Find the Gift Data button
-                    var giftData = driver.FindElement(By.XPath("//*[@id=\"main\"]/div[1]/div/div[4]/div[4]/div[2]/button"));
+                    var giftData = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.XPath("//*[@id=\"main\"]/div[1]/div/div[4]/div[4]/div[2]/button")));
 
                     // Click the Gift Data button
                     giftData.Click();
 
                     // Find the Gift Data confirmation button
-                    var confirmGiftDataButton = driver.FindElement(By.XPath("//*[@id=\"main\"]/div[1]/div/div[5]/div[2]/form/button[1]"));
+                    var confirmGiftDataButton = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.XPath("//*[@id=\"main\"]/div[1]/div/div[5]/div[2]/form/button[1]")));
 
                     // Click the Gift Data confirmation button
-                    //confirmGiftDataButton.Click();
+                    confirmGiftDataButton.Click();
+
                     if (confirmGiftDataButton != null)
                     {
                         Console.WriteLine("successfully gifted data!");

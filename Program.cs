@@ -31,17 +31,27 @@ namespace DataGifting
 
             LogicMethods.waitForAcceptCookies(driver);
 
+            LogicMethods.waitForDataUsagePage(driver);
+
+            //LogicMethods.waitForSenderDataUsagePage(driver);
+
             //LogicMethods.waitForDataUsagePage(driver);
 
-            LogicMethods.waitForDataGiftPage(driver);
+            LogicMethods.waitForSenderDataUsageJSONPage(driver);
 
-            LogicMethods.waitForDataGiftNumbers(driver);
+            LogicMethods.ParseJSONDataUsage(driver);
 
-            LogicMethods.waitForDataGiftAmount(driver);
+            //LogicMethods.waitForDataGiftPage(driver);
+
+            //LogicMethods.waitForDataGiftNumbers(driver);
+
+            //LogicMethods.waitForDataGiftAmount(driver);
 
             //LogicMethods.waitForDataGiftConfirm(driver);
 
             //driver.Quit();
         }
     }
+
+
 }

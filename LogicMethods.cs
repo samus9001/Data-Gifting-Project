@@ -11,6 +11,7 @@ using OpenQA.Selenium.Support.UI;
 using System.Security.Cryptography.X509Certificates;
 using Newtonsoft.Json.Linq;
 using SeleniumExtras.WaitHelpers;
+using Newtonsoft.Json;
 
 namespace DataGifting
 {
@@ -153,7 +154,7 @@ namespace DataGifting
                     string acceptCookiesElementText = "//a[contains(text(), 'Accept all cookies')]";
 
                     // Locate the accept cookies element inside the iframe and click on it
-                    IWebElement acceptCookiesElement = driver.FindElement(By.XPath(acceptCookiesElementText));
+                    IWebElement acceptCookiesElement = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.XPath(acceptCookiesElementText)));
 
                     acceptCookiesElement.Click();
 
@@ -186,20 +187,19 @@ namespace DataGifting
                 Func<IWebDriver, bool> waitForDataUsagePage = new Func<IWebDriver, bool>((IWebDriver web) =>
                 {
                     // Navigate to the URL
-                    driver.Navigate().GoToUrl("https://ee.co.uk/plans-subscriptions/mobile/usage-since-last-bill");
+                    driver.Navigate().GoToUrl("https://ee.co.uk/plans-subscriptions/mobile");
 
-                    wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.UrlMatches("https://ee.co.uk/plans-subscriptions/mobile/usage-since-last-bill"));
+                    wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.UrlMatches("https://ee.co.uk/plans-subscriptions/mobile"));
 
-                    if (driver.Url == "https://ee.co.uk/plans-subscriptions/mobile/usage-since-last-bill")
+                    if (driver.Url == "https://ee.co.uk/plans-subscriptions/mobile")
                     {
                         Console.WriteLine("\nSuccessfully loaded data usage page");
-                        return true;
                     }
                     else
                     {
-                        Console.WriteLine("\n Failed to load data usage page");
-                        return false;
+                        Console.WriteLine("\nFailed to load data usage page");
                     }
+                    return true;
                 });
 
                 return wait.Until(waitForDataUsagePage);
@@ -210,6 +210,119 @@ namespace DataGifting
                 return false;
             }
         }
+
+        public static bool waitForSenderDataUsagePage(IWebDriver driver)
+        {
+            try
+            {
+                WebDriverWait wait = CreateWebDriverWait(driver);
+
+                Func<IWebDriver, bool> waitForSenderDataUsagePage = new Func<IWebDriver, bool>((IWebDriver web) =>
+                {
+                    // Find the Choose a device dropdown element
+                    var selectDeviceDropdownButton = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.ClassName("lxp-DropdownOption__wrapper__text-wrapper")));
+
+                    // Click the choose a device dropdown element button 
+                    selectDeviceDropdownButton.Click();
+
+                    var selectFromNumberButton = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.XPath("//*[@id=\"react-select-2-option-0\"]")));
+
+                    // Click the phone number button
+                    selectFromNumberButton.Click();
+
+                    return true;
+                });
+
+                return wait.Until(waitForSenderDataUsagePage);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+                return false;
+            }
+        }
+
+        public static bool waitForSenderDataUsageJSONPage(IWebDriver driver)
+        {
+            try
+            {
+                WebDriverWait wait = CreateWebDriverWait(driver);
+
+                Func<IWebDriver, bool> waitForSenderDataUsageJSONPage = new Func<IWebDriver, bool>((IWebDriver web) =>
+                {
+                    // Navigate to the plain text URL
+                    driver.Navigate().GoToUrl("https://ee.co.uk/app/api/usage-details");
+
+                    wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.UrlMatches("https://ee.co.uk/app/api/usage-details"));
+
+                    IWebElement jsonElement = driver.FindElement(By.TagName("pre"));
+
+                    string jsonString = jsonElement.Text;
+
+                    // Parse the JSON string into a JObject
+                    JObject jsonObject = JObject.Parse(jsonString);
+
+                    return true;
+                });
+
+                return wait.Until(waitForSenderDataUsageJSONPage);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Store the usage data into a JObject
+        /// </summary>
+        /// <param name="driver"></param>
+        /// <returns></returns>
+        public static bool ParseJSONDataUsage(IWebDriver driver)
+        {
+            try
+            {
+                WebDriverWait wait = CreateWebDriverWait(driver);
+
+                Func<IWebDriver, bool> ParseJSONDataUsage = new Func<IWebDriver, bool>((IWebDriver web) =>
+                {
+                    IWebElement jsonElement = driver.FindElement(By.TagName("pre"));
+
+                    string jsonString = jsonElement.Text;
+
+                    Console.WriteLine(jsonString);
+
+                    // Parse the JSON string into a JObject
+                    JObject jsonUsageDataObject = JObject.Parse(jsonString);
+
+                    string allowanceUsed = (string)jsonUsageDataObject["yourDataAllowancesSection"]["usageDatapassProgressBarComponent"]["allowanceUsed"];
+
+                    PlanDetails planDetails = new PlanDetails();
+
+                    planDetails.AllowanceUsed = allowanceUsed;
+
+                    Console.WriteLine($"\nAllowance used = {planDetails.AllowanceUsed}");
+
+
+
+                    //Deserialized function
+                    PlanDetails deserialized = JsonConvert.DeserializeObject<PlanDetails>(jsonString);
+
+                    Console.WriteLine($"\nallowance used = {deserialized.allowanceUsed}");
+
+                    return true;
+                });
+
+                return wait.Until(ParseJSONDataUsage);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+                return false;
+            }
+        }
+
 
         /// <summary>
         /// navigates to the data gifting page

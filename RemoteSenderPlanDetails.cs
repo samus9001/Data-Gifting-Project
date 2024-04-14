@@ -48,32 +48,32 @@ internal class RemoteSenderPlanDetails
 	public bool showPlanChangeInProgress { get; set; }
 
 	// Extract desired properties and return to PlanDetails object
-	public PlanDetails ExtractPlanDetails()
+	public SenderPlanDetails ExtractSenderPlanDetails()
 	{
-		PlanDetails planDetails = new PlanDetails();
+		SenderPlanDetails senderPlanDetails = new SenderPlanDetails();
 
-		planDetails.AllowanceUsed = yourDataAllowancesSection.usageDatapassProgressBarComponent.allowanceUsed;
-		planDetails.AllowanceUsedUnits = yourDataAllowancesSection.usageDatapassProgressBarComponent.allowanceUsedUnits;
-		planDetails.AllowanceAvailable = yourDataAllowancesSection.usageDatapassProgressBarComponent.allowanceAvailable;
-		planDetails.AllowanceAvailableUnits = yourDataAllowancesSection.usageDatapassProgressBarComponent.allowanceAvailableUnits;
-		planDetails.AllowanceLeft = yourDataAllowancesSection.usageDatapassProgressBarComponent.allowanceLeft;
-		planDetails.AllowanceLeftUnits = yourDataAllowancesSection.usageDatapassProgressBarComponent.allowanceLeftUnits;
-		planDetails.DaysLeftInBillPeriod = yourDataAllowancesSection.usageDatapassProgressBarComponent.daysLeftInBillPeriod;
-		planDetails.AllowanceRefreshDate = allowanceRefreshDate;
-		planDetails.AllowanceRefreshDay = allowanceRefreshDay;
-		planDetails.AllowanceRefreshDayMonth = allowanceRefreshDayMonth;
+		senderPlanDetails.AllowanceUsed = yourDataAllowancesSection.usageDatapassProgressBarComponent.allowanceUsed;
+		senderPlanDetails.AllowanceUsedUnits = yourDataAllowancesSection.usageDatapassProgressBarComponent.allowanceUsedUnits;
+		senderPlanDetails.AllowanceAvailable = yourDataAllowancesSection.usageDatapassProgressBarComponent.allowanceAvailable;
+		senderPlanDetails.AllowanceAvailableUnits = yourDataAllowancesSection.usageDatapassProgressBarComponent.allowanceAvailableUnits;
+		senderPlanDetails.AllowanceLeft = yourDataAllowancesSection.usageDatapassProgressBarComponent.allowanceLeft;
+		senderPlanDetails.AllowanceLeftUnits = yourDataAllowancesSection.usageDatapassProgressBarComponent.allowanceLeftUnits;
+		senderPlanDetails.DaysLeftInBillPeriod = yourDataAllowancesSection.usageDatapassProgressBarComponent.daysLeftInBillPeriod;
+		senderPlanDetails.AllowanceRefreshDate = allowanceRefreshDate;
+		senderPlanDetails.AllowanceRefreshDay = allowanceRefreshDay;
+		senderPlanDetails.AllowanceRefreshDayMonth = allowanceRefreshDayMonth;
 
-		return planDetails;
+		return senderPlanDetails;
 	}
 
 	// Extract DeviceDetails properties and set them in PhoneDetails
-	public PhoneDetails ExtractPhoneDetails()
+	public SenderPhoneDetails ExtractSenderPhoneDetails()
 	{
-		PhoneDetails phoneDetails = new PhoneDetails();
+		SenderPhoneDetails senderPhoneDetails = new SenderPhoneDetails();
 
-		phoneDetails.Manufacturer = deviceDetails.manufacturer;
-		phoneDetails.DeviceName = deviceDetails.deviceName;
+		senderPhoneDetails.Manufacturer = deviceDetails.manufacturer;
+		senderPhoneDetails.DeviceName = deviceDetails.deviceName;
 
-		return phoneDetails;
+		return senderPhoneDetails;
 	}
 }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DataGifting
 {
-    public class PlanDetails
+    public class SenderPlanDetails
     {
         private int _planNumber;
 

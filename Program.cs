@@ -39,7 +39,13 @@ namespace DataGifting
 
             LogicMethods.waitForSenderDataUsageJSONPage(driver);
 
-            LogicMethods.ParseJSONDataUsage(driver);
+            LogicMethods.parseSenderJSONDataUsage(driver);
+
+            LogicMethods.waitForReceiverDataUsagePage(driver);
+
+            LogicMethods.waitForReceiverDataUsageJSONPage(driver);
+
+            LogicMethods.parseReceivererJSONDataUsage(driver);
 
             //LogicMethods.waitForDataGiftPage(driver);
 

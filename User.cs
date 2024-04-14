@@ -34,9 +34,9 @@
             set { _address = value; }
         }
 
-        private List<PlanDetails> _plan;
+        private List<SenderPlanDetails> _plan;
 
-        public List<PlanDetails> Plan
+        public List<SenderPlanDetails> Plan
         {
             get { return _plan; }
             set { _plan = value; }

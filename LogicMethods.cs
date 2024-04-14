@@ -225,10 +225,10 @@ namespace DataGifting
 					// Click the choose a device dropdown element button 
 					selectDeviceDropdownButton.Click();
 
-					var selectFromNumberButton = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.XPath("//*[@id=\"react-select-2-option-0\"]")));
+					var selectNumberButton = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.XPath("//*[@id=\"react-select-2-option-0\"]")));
 
 					// Click the phone number button
-					selectFromNumberButton.Click();
+					selectNumberButton.Click();
 
 					return true;
 				});
@@ -268,11 +268,11 @@ namespace DataGifting
 		}
 
 		/// <summary>
-		/// Store the usage data into a JObject
+		/// Store the sender usage data into a JObject
 		/// </summary>
 		/// <param name="driver"></param>
 		/// <returns></returns>
-		public static bool ParseJSONDataUsage(IWebDriver driver)
+		public static bool parseSenderJSONDataUsage(IWebDriver driver)
 		{
 			try
 			{
@@ -293,14 +293,112 @@ namespace DataGifting
 					RemoteSenderPlanDetails deserialized = JsonConvert.DeserializeObject<RemoteSenderPlanDetails>(jsonString);
 
 					// Create a PlanDetails object to store the desired values
-					PlanDetails planDetails = deserialized.ExtractPlanDetails();
+					SenderPlanDetails senderPlanDetails = deserialized.ExtractSenderPlanDetails();
 
-					Console.WriteLine($"Allowance Used: {planDetails.AllowanceUsed}");
+					Console.WriteLine($"Allowance Used: {senderPlanDetails.AllowanceUsed}");
 
 					// Create a PhoneDetails object to store the desired values
-					PhoneDetails phoneDetails = deserialized.ExtractPhoneDetails();
+					SenderPhoneDetails senderPhoneDetails = deserialized.ExtractSenderPhoneDetails();
 
-					Console.WriteLine($"Device name: {phoneDetails.DeviceName}");
+					Console.WriteLine($"Device name: {senderPhoneDetails.DeviceName}");
+
+					return true;
+				});
+
+				return wait.Until(ParseJSONDataUsage);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"An error occurred: {ex.Message}");
+				return false;
+			}
+		}
+
+		public static bool waitForReceiverDataUsagePage(IWebDriver driver)
+		{
+			try
+			{
+				WebDriverWait wait = CreateWebDriverWait(driver);
+
+				Func<IWebDriver, bool> waitForReceiverDataUsagePage = new Func<IWebDriver, bool>((IWebDriver web) =>
+				{
+					// Find the Choose a device dropdown element
+					var selectDeviceDropdownButton = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.ClassName("lxp-DropdownOption__wrapper__text-wrapper")));
+
+					// Click the choose a device dropdown element button 
+					selectDeviceDropdownButton.Click();
+
+					var selectNumberButton = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.XPath("//*[@id=\"react-select-2-option-1\"]")));
+
+					// Click the phone number button
+					selectNumberButton.Click();
+
+					return true;
+				});
+
+				return wait.Until(waitForSenderDataUsagePage);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"An error occurred: {ex.Message}");
+				return false;
+			}
+		}
+
+		public static bool waitForReceiverDataUsageJSONPage(IWebDriver driver)
+		{
+			try
+			{
+				WebDriverWait wait = CreateWebDriverWait(driver);
+
+				Func<IWebDriver, bool> waitForReceiverDataUsageJSONPage = new Func<IWebDriver, bool>((IWebDriver web) =>
+				{
+					// Navigate to the plain text URL
+					driver.Navigate().GoToUrl("https://ee.co.uk/app/api/usage-details");
+
+					wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.UrlMatches("https://ee.co.uk/app/api/usage-details"));
+
+					return true;
+				});
+
+				return wait.Until(waitForReceiverDataUsageJSONPage);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"An error occurred: {ex.Message}");
+				return false;
+			}
+		}
+
+		public static bool parseReceivererJSONDataUsage(IWebDriver driver)
+		{
+			try
+			{
+				WebDriverWait wait = CreateWebDriverWait(driver);
+
+				Func<IWebDriver, bool> ParseJSONDataUsage = new Func<IWebDriver, bool>((IWebDriver web) =>
+				{
+					IWebElement jsonElement = driver.FindElement(By.TagName("pre"));
+
+					string jsonString = jsonElement.Text;
+
+					Console.WriteLine(jsonString);
+
+					// Parse the JSON string into a JObject
+					JObject jsonUsageDataObject = JObject.Parse(jsonString);
+
+					// Deserialized function
+					RemoteReceiverPlanDetails deserialized = JsonConvert.DeserializeObject<RemoteReceiverPlanDetails>(jsonString);
+
+					// Create a PlanDetails object to store the desired values
+					ReceiverPlanDetails receiverPlanDetails = deserialized.ExtractReceiverPlanDetails();
+
+					Console.WriteLine($"Allowance Used: {receiverPlanDetails.AllowanceUsed}");
+
+					// Create a PhoneDetails object to store the desired values
+					ReceiverPhoneDetails receiverPhoneDetails = deserialized.ExtractReceiverPhoneDetails();
+
+					Console.WriteLine($"Device name: {receiverPhoneDetails.DeviceName}");
 
 					return true;
 				});

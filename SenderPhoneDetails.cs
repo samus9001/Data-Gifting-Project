@@ -1,8 +1,7 @@
 ﻿namespace DataGifting
 {
-	public class PhoneDetails
+	public class SenderPhoneDetails
 	{
-
 		private string _manufacturer;
 
 		public string Manufacturer

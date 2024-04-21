@@ -23,17 +23,17 @@ namespace DataGifting
             var chromeOptions = new ChromeOptions();
             //chromeOptions.AddArguments("--headless=new");
             var driver = new ChromeDriver(chromeOptions);
-            driver.Navigate().GoToUrl("https://id.ee.co.uk");
+            driver.Navigate().GoToUrl(Options.URLs.loginURL);
 
-            LogicMethods.signInAndStoreData(driver);
+			LogicMethods.signInAndStoreData(driver, Options.URLs.dataUsageURL, Options.URLs.jsonDataUsageURL);
 
-            //GitfingInfoResponse = LogicMethods.parseReceivererJSONDataUsage(driver);
+			//GitfingInfoResponse = LogicMethods.parseReceivererJSONDataUsage(driver);
 
-            //LogicMethods.giftData(driver);
+			//LogicMethods.giftData(driver);
 
-            //driver.Quit();
-        }
-    }
+			//driver.Quit();
+		}
+	}
 
 
 }

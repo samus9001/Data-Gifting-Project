@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DataGifting
 {
-	internal class ReceiverPhoneDetails
+	public class ReceiverPhoneDetails
 	{
 		private string _manufacturer;
 

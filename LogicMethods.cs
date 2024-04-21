@@ -33,7 +33,7 @@ namespace DataGifting
 		/// </summary>
 		/// <param name="driver"></param>
 		/// <returns></returns>
-		public static bool signInAndStoreData(IWebDriver driver)
+		public static bool signInAndStoreData(IWebDriver driver, string dataUsageURL, string jsonDataUsageURL)
 		{
 			try
 			{
@@ -118,11 +118,11 @@ namespace DataGifting
 					try
 					{
 						// Navigate to the data usage page URL
-						driver.Navigate().GoToUrl("https://ee.co.uk/plans-subscriptions/mobile");
+						driver.Navigate().GoToUrl(dataUsageURL);
 
-						wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.UrlMatches("https://ee.co.uk/plans-subscriptions/mobile"));
+						wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.UrlMatches(dataUsageURL));
 
-						if (driver.Url == "https://ee.co.uk/plans-subscriptions/mobile")
+						if (driver.Url == (Options.URLs.dataUsageURL))
 						{
 							Console.WriteLine("\nSuccessfully loaded data usage page");
 						}
@@ -140,9 +140,9 @@ namespace DataGifting
 					try
 					{
 						// Navigate to the plain text URL
-						driver.Navigate().GoToUrl("https://ee.co.uk/app/api/usage-details");
+						driver.Navigate().GoToUrl(jsonDataUsageURL);
 
-						wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.UrlMatches("https://ee.co.uk/app/api/usage-details"));
+						wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.UrlMatches(jsonDataUsageURL));
 					}
 					catch
 					{
@@ -183,9 +183,9 @@ namespace DataGifting
 					try
 					{
 						// Navigate to the data usage page URL
-						driver.Navigate().GoToUrl("https://ee.co.uk/plans-subscriptions/mobile");
+						driver.Navigate().GoToUrl(dataUsageURL);
 
-						wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.UrlMatches("https://ee.co.uk/plans-subscriptions/mobile"));
+						wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.UrlMatches(dataUsageURL));
 
 						if (driver.Url == "https://ee.co.uk/plans-subscriptions/mobile")
 						{
@@ -226,9 +226,9 @@ namespace DataGifting
 						var deviceDropdownElement = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.ClassName("lxp-DropdownOption__wrapper__text-wrapper")));
 
 						// Navigate to the plain text URL
-						driver.Navigate().GoToUrl("https://ee.co.uk/app/api/usage-details");
+						driver.Navigate().GoToUrl(jsonDataUsageURL);
 
-						wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.UrlMatches("https://ee.co.uk/app/api/usage-details"));
+						wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.UrlMatches(jsonDataUsageURL));
 					}
 					catch
 					{
@@ -284,7 +284,7 @@ namespace DataGifting
 		/// </summary>
 		/// <param name="driver"></param>
 		/// <returns></returns>
-		public static bool giftData(IWebDriver driver)
+		public static bool giftData(IWebDriver driver, string dataGiftingURL)
 		{
 			try
 			{
@@ -296,11 +296,11 @@ namespace DataGifting
 					{
 
 						// Load the data gifting page
-						driver.Navigate().GoToUrl("https://ee.co.uk/plans-subscriptions/mobile/data-gifting");
+						driver.Navigate().GoToUrl(dataGiftingURL);
 
-						wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.UrlMatches("https://ee.co.uk/plans-subscriptions/mobile/data-gifting"));
+						wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.UrlMatches(dataGiftingURL));
 
-						if (driver.Url == "https://ee.co.uk/plans-subscriptions/mobile/data-gifting")
+						if (driver.Url == (Options.URLs.dataGiftingURL))
 						{
 							Console.WriteLine("\nSuccessfully loaded data gifting page");
 						}
@@ -380,52 +380,54 @@ namespace DataGifting
 							Console.WriteLine("Successfully gifted data!");
 						}
 					}
-					catch (Exception ex)
+					catch
 					{
-						Console.WriteLine($"An error occurred: {ex.Message}");
+						Console.WriteLine("\nCould nould select Gift Data button");
 						return false;
 					}
+					// Return true to indicate that the condition is met
+					return true;
 				});
 
 				return wait.Until(giftData);
 			}
-			catch
+			catch (Exception ex)
 			{
-				Console.WriteLine("\nCould nould select Gift Data button");
+				Console.WriteLine($"An error occurred: {ex.Message}");
 				return false;
 			}
+
+			//public static bool selectSenderDataDropdown(IWebDriver driver)
+			//{
+			//	try
+			//	{
+			//		WebDriverWait wait = CreateWebDriverWait(driver);
+
+			//		Func<IWebDriver, bool> selectSenderDataDropdown = new Func<IWebDriver, bool>((IWebDriver web) =>
+			//		{
+			//			// Find the Choose a device dropdown element
+			//			var selectDeviceDropdownButton = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.ClassName("lxp-DropdownOption__wrapper__text-wrapper")));
+
+			//			// Click the choose a device dropdown element button 
+			//			selectDeviceDropdownButton.Click();
+
+			//			var selectNumberButton = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.XPath("//*[@id=\"react-select-2-option-0\"]")));
+
+			//			// Click the phone number button
+			//			selectNumberButton.Click();
+
+			//			return true;
+			//		});
+
+			//		return wait.Until(selectSenderDataDropdown);
+			//	}
+			//	catch (Exception ex)
+			//	{
+			//		Console.WriteLine($"An error occurred: {ex.Message}");
+			//		return false;
+			//	}
+			//}
+
 		}
-
-		//public static bool selectSenderDataDropdown(IWebDriver driver)
-		//{
-		//	try
-		//	{
-		//		WebDriverWait wait = CreateWebDriverWait(driver);
-
-		//		Func<IWebDriver, bool> selectSenderDataDropdown = new Func<IWebDriver, bool>((IWebDriver web) =>
-		//		{
-		//			// Find the Choose a device dropdown element
-		//			var selectDeviceDropdownButton = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.ClassName("lxp-DropdownOption__wrapper__text-wrapper")));
-
-		//			// Click the choose a device dropdown element button 
-		//			selectDeviceDropdownButton.Click();
-
-		//			var selectNumberButton = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.XPath("//*[@id=\"react-select-2-option-0\"]")));
-
-		//			// Click the phone number button
-		//			selectNumberButton.Click();
-
-		//			return true;
-		//		});
-
-		//		return wait.Until(selectSenderDataDropdown);
-		//	}
-		//	catch (Exception ex)
-		//	{
-		//		Console.WriteLine($"An error occurred: {ex.Message}");
-		//		return false;
-		//	}
-		//}
-
 	}
 }

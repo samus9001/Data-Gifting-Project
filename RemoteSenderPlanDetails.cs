@@ -1,6 +1,6 @@
 ﻿using DataGifting;
 
-internal class RemoteSenderPlanDetails
+public class RemoteSenderPlanDetails
 {
 	public class DeviceDetails
 	{

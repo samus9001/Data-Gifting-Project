@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DataGifting
 {
-	internal class RemoteReceiverPlanDetails
+	public class RemoteReceiverPlanDetails
 	{
 		public class DeviceDetails
 		{

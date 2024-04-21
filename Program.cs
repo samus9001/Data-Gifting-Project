@@ -25,35 +25,11 @@ namespace DataGifting
             var driver = new ChromeDriver(chromeOptions);
             driver.Navigate().GoToUrl("https://id.ee.co.uk");
 
-            LogicMethods.waitForSignInElement(driver);
+            LogicMethods.signInAndStoreData(driver);
 
-            LogicMethods.waitForPasswordElement(driver);
+            //GitfingInfoResponse = LogicMethods.parseReceivererJSONDataUsage(driver);
 
-            LogicMethods.waitForAcceptCookies(driver);
-
-            LogicMethods.waitForDataUsagePage(driver);
-
-            //LogicMethods.waitForSenderDataUsagePage(driver);
-
-            //LogicMethods.waitForDataUsagePage(driver);
-
-            LogicMethods.waitForSenderDataUsageJSONPage(driver);
-
-            LogicMethods.parseSenderJSONDataUsage(driver);
-
-            LogicMethods.waitForReceiverDataUsagePage(driver);
-
-            LogicMethods.waitForReceiverDataUsageJSONPage(driver);
-
-            LogicMethods.parseReceivererJSONDataUsage(driver);
-
-            //LogicMethods.waitForDataGiftPage(driver);
-
-            //LogicMethods.waitForDataGiftNumbers(driver);
-
-            //LogicMethods.waitForDataGiftAmount(driver);
-
-            //LogicMethods.waitForDataGiftConfirm(driver);
+            //LogicMethods.giftData(driver);
 
             //driver.Quit();
         }

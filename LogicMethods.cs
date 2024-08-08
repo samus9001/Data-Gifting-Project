@@ -55,7 +55,7 @@ namespace DataGifting
 						var elements = driver.FindElements(By.XPath("//input"));
 
 						// Input the provided keys for the first input element
-						elements[1].SendKeys("sameer99@outlook.com");
+						//elements[1].SendKeys(""); input username
 
 						// Find the button element then click the button
 						driver.FindElement(By.XPath("//button")).Click();
@@ -79,7 +79,7 @@ namespace DataGifting
 						var elements = driver.FindElements(By.XPath("//input"));
 
 						// Input the provided keys for the third input element
-						elements[2].SendKeys("D@tagifting2113");
+						elements[2].SendKeys(""); //input password
 
 						// Find the button element then click the button
 						driver.FindElement(By.XPath("//button")).Click();
@@ -324,10 +324,10 @@ namespace DataGifting
 						findFromButton.Click();
 
 						// Find the send from phone number element button
-						var selectFromNumberButton = driver.FindElement(By.CssSelector("li.select2-results__option[title='07725917672']"));
+						//var selectFromNumberButton = driver.FindElement(By.CssSelector("li.select2-results__option[title='']")); input phone number
 
 						// Click the phone number button
-						selectFromNumberButton.Click();
+						//selectFromNumberButton.Click();
 
 						// Find the send To dropdown button
 						var findToButton = driver.FindElement(By.Id("select2-consumerMsisdn-container"));
@@ -336,10 +336,10 @@ namespace DataGifting
 						findToButton.Click();
 
 						// Find the send to phone number element button
-						var selectToNumberButton = driver.FindElement(By.CssSelector("li.select2-results__option[title='07753261456']"));
+						//var selectToNumberButton = driver.FindElement(By.CssSelector("li.select2-results__option[title='']")); input phone number
 
 						// Click the phone number button
-						selectToNumberButton.Click();
+						//selectToNumberButton.Click();
 					}
 					catch
 					{
